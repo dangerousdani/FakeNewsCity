@@ -1,0 +1,155 @@
+{
+  "article": [
+    { "tweet": "random tweet mit der nummer 1",
+      "likes": 1234,
+      "comments": 456,
+      "retweets": 789,
+      "keyword": "US ELECTION"
+    },
+    { "tweet": "random tweet 2",
+      "likes": 1100,
+      "comments": 456,
+      "retweets": 789
+    },
+    { "tweet": "random tweet 3",
+      "likes": 1020,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 4",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 5",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 6",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 7",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 8",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 9",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 10",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 11",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 12",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 13",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 14",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 15",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 16",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 17",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 18",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 19",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 20",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 21",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 22",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 23",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 24",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 25",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 26",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 27",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 28",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 29",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    },
+    {"tweet": "random tweet 30",
+      "likes": 123,
+      "comments": 456,
+      "retweets": 789
+    }
+  ]
+}
