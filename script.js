@@ -5,8 +5,6 @@ import * as THREE from './sources/three.module.js';
 // 📊 LOAD JSON DATA ----------------------------------------
 // Do not forget to load the D3 Framework in your HTML file!
 
-
-
 d3.json("sources/newsapi.json").then(function (data) {
 
   // 🌐 GLOBAL VARIABLES -------------------------- 
@@ -16,11 +14,11 @@ d3.json("sources/newsapi.json").then(function (data) {
   var lon = 0, lat = 0;
   var phi = 0, theta = 0;
 
-  let speed = 0;
-  let position = 0;
+  let userSpeed = 0;
+  let userPosition = 0;
 
-  window.addEventListener('wheel', (e)=>{
-    speed += e.deltaY*0.0002;
+  window.addEventListener('wheel', function(wheelEvent) {
+    userSpeed += wheelEvent.deltaY*0.00002;
   })
 
   var startRow = 0;
@@ -32,7 +30,8 @@ d3.json("sources/newsapi.json").then(function (data) {
 
   var groupedObjectsA = new THREE.Group();
 
-  // 🚀 RUN MAIN FUNCTIONS -------------------------- 
+  
+    // 🚀 RUN MAIN FUNCTIONS -------------------------- 
 
   init();
   animate();
@@ -49,11 +48,26 @@ d3.json("sources/newsapi.json").then(function (data) {
     var far = 100;
     camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
-    camera.position.x = -2;
-    camera.position.y = 1;
-    camera.position.z = 10;
+    //camera.position.x = -2;
+    //camera.position.y = 1;
+    //camera.position.z = 10;
     //camera.lookAt(new THREE.Vector3(0,0,0));
     //camera.lookAt(scene.position);
+
+    //Create a closed wavey loop
+    const pathCurve = new THREE.CatmullRomCurve3( [
+      new THREE.Vector3( -2, 1, 20 ),
+      new THREE.Vector3( -2, 1, 10 ),
+      new THREE.Vector3( 5, 1, 10 ),
+      new THREE.Vector3( 5, 1, 2 ),
+      new THREE.Vector3( -2, 10, 10 ),
+      new THREE.Vector3( 0, 20, 0 )
+    ] );
+
+    const pathPoints = pathCurve.getPoints( 50 );
+    const pathGeometry = new THREE.BufferGeometry().setFromPoints( pathPoints );
+    const pathMaterial = new THREE.LineBasicMaterial( { color : 0xffffff, linewidth: 0 } );
+    let cameraPath = new THREE.Mesh( pathGeometry, pathMaterial );
 
     // Camera Animation ----------------------- 
 
@@ -61,9 +75,17 @@ d3.json("sources/newsapi.json").then(function (data) {
 
     function update(renderer, scene, camera){
    
-    position += speed;
-    speed *=0.8;
-    camera.position.z = position;
+    
+    userSpeed = userSpeed * 0.8;
+    userPosition = userPosition + userSpeed;
+    //console.log(userPosition);
+    camera.lookAt(0,0,0);
+
+    if (userPosition >= 0 && userPosition < 1) {
+      camera.position.copy(pathCurve.getPointAt(userPosition));
+    } else {
+      userPosition = 0;
+    }
 
     requestAnimationFrame(function() {
         update(renderer, scene, camera);
@@ -73,22 +95,9 @@ d3.json("sources/newsapi.json").then(function (data) {
 
     // CAMERA CURVE -------------------------- 
 
-    //Create a closed wavey loop
-    const curve = new THREE.CatmullRomCurve3( [
-      new THREE.Vector3( -10, 0, 10 ),
-      new THREE.Vector3( -5, 5, 5 ),
-      new THREE.Vector3( 0, 0, 0 ),
-      new THREE.Vector3( 5, -5, 5 ),
-      new THREE.Vector3( 10, 0, 10 )
-    ] );
+    
 
-    const points = curve.getPoints( 50 );
-    const geometry2 = new THREE.BufferGeometry().setFromPoints( points );
 
-    const material2 = new THREE.LineBasicMaterial( { color : 0xff0000 } );
-
-    // Create the final object to add to the scene
-    const curveObject = new THREE.Line( geometry2, material2 );
 
     // 🌇 SCENE SETTING -------------------------- 
 
@@ -101,7 +110,7 @@ d3.json("sources/newsapi.json").then(function (data) {
     // helper();
 
     // 👇 FLOOR ✅ -----------------------
-    var floor = generateFloor(22, 22);
+    var floor = generateFloor(1000, 1000);
     floor.position.x = -4;
     floor.name = 'floor';
     floor.rotation.x = Math.PI/2;
@@ -199,6 +208,9 @@ d3.json("sources/newsapi.json").then(function (data) {
 
     scene.add(groupedObjectsA);
     scene.add(floor);
+    // scene.add(cameraPath);
+    
+
 
     // 🎛 RENDER SETTINGS -------------------------- 
 
@@ -237,6 +249,8 @@ d3.json("sources/newsapi.json").then(function (data) {
     camera.lookAt(scene.position);
     */
     renderer.render(scene, camera);
+    //camera.position.copy( setCameraPosition() );
+    
     
   }
 
