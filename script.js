@@ -10,7 +10,6 @@ d3.json("sources/newsapi.json").then(function (data) {
   // 🌐 GLOBAL VARIABLES -------------------------- 
 
   var scene, renderer, camera;
-  //var onPointerDownPointerX, onPointerDownPointerY, onPointerDownLon, onPointerDownLat;
   var lon = 0, lat = 0;
   var phi = 0, theta = 0;
 
@@ -18,18 +17,21 @@ d3.json("sources/newsapi.json").then(function (data) {
   let userPosition = 0;
 
   window.addEventListener('wheel', function(wheelEvent) {
+    wheelEvent.preventDefault();
+    wheelEvent.stopPropagation();
     userSpeed += wheelEvent.deltaY*0.00002;
   })
 
   var startRow = 0;
   var numberOfObjects = startRow + 29;
 
-  
+  var scrollbox1 = document.getElementById("scrollbox1");
+  var scrollbox2 = document.getElementById("scrollbox2");
+  var scrollbox3 = document.getElementById("scrollbox3");
 
   // 🌐 GROUPS SETTING -------------------------- 
 
   var groupedObjectsA = new THREE.Group();
-
   
     // 🚀 RUN MAIN FUNCTIONS -------------------------- 
 
@@ -48,19 +50,18 @@ d3.json("sources/newsapi.json").then(function (data) {
     var far = 100;
     camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
-    //camera.position.x = -2;
-    //camera.position.y = 1;
-    //camera.position.z = 10;
-    //camera.lookAt(new THREE.Vector3(0,0,0));
-    //camera.lookAt(scene.position);
-
-    //Create a closed wavey loop
+    //Camera Path
+    //Vector values: (- = nachlinks/+ = nachrechts, - = nach unten/+ = nach oben, - = nach hinten/ + = nach vorne)
     const pathCurve = new THREE.CatmullRomCurve3( [
-      new THREE.Vector3( -2, 1, 20 ),
-      new THREE.Vector3( -2, 1, 10 ),
-      new THREE.Vector3( 5, 1, 10 ),
-      new THREE.Vector3( 5, 1, 2 ),
-      new THREE.Vector3( -2, 10, 10 ),
+      //Froschperspektive
+      new THREE.Vector3( -3, 0.5, 5 ),
+      new THREE.Vector3( -3, 0.5, 1 ),
+      new THREE.Vector3( 3, 0.5, 1 ),
+      new THREE.Vector3( 3, 0.5, -4 ),
+      new THREE.Vector3( 0, 0.5, 5 ),
+      //Wechsel in die Zwischenstufe
+      new THREE.Vector3( 0, 5, 10 ),
+      //Wechsel in die Vogelperspektive
       new THREE.Vector3( 0, 20, 0 )
     ] );
 
@@ -75,7 +76,6 @@ d3.json("sources/newsapi.json").then(function (data) {
 
     function update(renderer, scene, camera){
    
-    
     userSpeed = userSpeed * 0.8;
     userPosition = userPosition + userSpeed;
     //console.log(userPosition);
@@ -87,18 +87,30 @@ d3.json("sources/newsapi.json").then(function (data) {
       userPosition = 0;
     }
 
+    if(userPosition >= 0 && userPosition < 0.1){
+    document.getElementById("scrollbox1").style.opacity = 1;
+    } else {
+      document.getElementById("scrollbox1").style.opacity = 0;
+    }
+
+    if(userPosition > 0.4 && userPosition < 0.7){
+    document.getElementById("scrollbox2").style.opacity = 1;
+    } else {
+      document.getElementById("scrollbox2").style.opacity = 0;
+    }
+
+    if(userPosition > 0.9 && userPosition < 1){
+    document.getElementById("scrollbox3").style.opacity = 1;
+    } else {
+      document.getElementById("scrollbox3").style.opacity = 0;
+    }
+
     requestAnimationFrame(function() {
         update(renderer, scene, camera);
     });
 
     }
-
-    // CAMERA CURVE -------------------------- 
-
     
-
-
-
     // 🌇 SCENE SETTING -------------------------- 
 
     scene = new THREE.Scene();
@@ -209,8 +221,6 @@ d3.json("sources/newsapi.json").then(function (data) {
     scene.add(groupedObjectsA);
     scene.add(floor);
     // scene.add(cameraPath);
-    
-
 
     // 🎛 RENDER SETTINGS -------------------------- 
 
@@ -225,68 +235,15 @@ d3.json("sources/newsapi.json").then(function (data) {
     renderer.setClearColor('rgb(30,30,30)');
     document.body.appendChild(renderer.domElement);
 
-    /*
-    // 🐭 PART OF MOUSE CONTOLL -------------------------- 
-
-    document.addEventListener('mousedown', onDocumentMouseDown, true);
-    document.addEventListener('wheel', onDocumentMouseWheel, true);
-    */
   }
 
   // 🔄 ANIMATION SETTINGS -------------------------- 
 
   function animate() {
     requestAnimationFrame(animate);
-    /*
-    // MOUSE 
-    lon += 0;
-    lat = Math.max(- 85, Math.min(85, lat));
-    phi = THREE.MathUtils.degToRad(90 - lat);
-    theta = THREE.MathUtils.degToRad(lon);
-    camera.position.x = 10 * Math.sin(phi) * Math.cos(theta);
-    camera.position.y = 10 * Math.cos(phi) + 10;
-    camera.position.z = 10 * Math.sin(phi) * Math.sin(theta) + 10;
-    camera.lookAt(scene.position);
-    */
-    renderer.render(scene, camera);
-    //camera.position.copy( setCameraPosition() );
-    
+    renderer.render(scene, camera);   
     
   }
-
-  // 🐭 PART OF MOUSE CONTOLL -------------------------- 
-   /*
-   function onDocumentMouseDown(event) {
-    event.preventDefault();
-    onPointerDownPointerX = event.clientX;
-    onPointerDownPointerY = event.clientY;
-    onPointerDownLon = lon;
-    onPointerDownLat = lat;
-    document.addEventListener('mousemove', onDocumentMouseMove, false);
-    document.addEventListener('mouseup', onDocumentMouseUp, false);
-  }*/
-
-  // 🐭 PART OF MOUSE CONTOLL -------------------------- 
-  /*
-  function onDocumentMouseMove(event) {
-    lon = (event.clientX - onPointerDownPointerX) * 0.1 + onPointerDownLon;
-    lat = (event.clientY - onPointerDownPointerY) * 0.1 + onPointerDownLat;
-  }*/
-
-  // 🐭 PART OF MOUSE CONTOLL -------------------------- 
-  /*
-  function onDocumentMouseUp() {
-    document.removeEventListener('mousemove', onDocumentMouseMove, false);
-    document.removeEventListener('mouseup', onDocumentMouseUp, false);
-  }*/
-
-  // 🐭 PART OF MOUSE CONTOLL -------------------------- 
-/*
-  function onDocumentMouseWheel(event) {
-    var fov = camera.fov + event.deltaY * 0.05;
-    camera.fov = THREE.MathUtils.clamp(fov, 10, 75);
-    camera.updateProjectionMatrix();
-  }*/
 
   // 🔶 These cubes help you to get an orientation in space -------------------------- 
 
