@@ -58,11 +58,11 @@ d3.json("sources/newsapi.json").then(function (data) {
       new THREE.Vector3( -3, 0.5, 1 ),
       new THREE.Vector3( 3, 0.5, 1 ),
       new THREE.Vector3( 3, 0.5, -4 ),
-      new THREE.Vector3( 0, 0.5, 5 ),
+      new THREE.Vector3( 1, 0.5, 5 ),
       //Wechsel in die Zwischenstufe
-      new THREE.Vector3( 0, 5, 10 ),
+      new THREE.Vector3( 1, 5, 10 ),
       //Wechsel in die Vogelperspektive
-      new THREE.Vector3( 0, 20, 0 )
+      new THREE.Vector3( 0, 20, 0 ),
     ] );
 
     const pathPoints = pathCurve.getPoints( 50 );
@@ -114,7 +114,7 @@ d3.json("sources/newsapi.json").then(function (data) {
     // 🌇 SCENE SETTING -------------------------- 
 
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x111111);
+    scene.background = new THREE.Color(0x96A4B6);
     scene.fog = new THREE.Fog(0xFFFFFF, 15, 35);
 
     // 🔶 HELPER CUBES ✅ ----------------------- 
@@ -122,21 +122,28 @@ d3.json("sources/newsapi.json").then(function (data) {
     // helper();
 
     // 👇 FLOOR ✅ -----------------------
-    var floor = generateFloor(1000, 1000);
+    /*var floor = generateFloor(1000, 1000);
     floor.position.x = -4;
     floor.name = 'floor';
     floor.rotation.x = Math.PI/2;
 
     function generateFloor(w, d){
     var geo = new THREE.PlaneGeometry(w, d);
-    var mat = new THREE.MeshPhysicalMaterial({
-        color: 'rgb(100,100,100)',
+    var mat = new THREE.MeshPhongMaterial({
+        color: 'rgb(5,8,12)',
         side: THREE.DoubleSide
     });
     var mesh = new THREE.Mesh(geo, mat);
     mesh.receiveShadow = true;
     return mesh;
-}
+    }*/
+
+    //Pedestal
+    const pedestalgeo = new THREE.BoxGeometry(22, 2, 22);
+    const pedestalmat = new THREE.MeshPhongMaterial( { color: 0x000000 } );
+    var pedestal = new THREE.Mesh( pedestalgeo, pedestalmat );
+    pedestal.position.y = -1;
+    scene.add( pedestal );
 
     // 👇 YOUR 3D OBJECTS ✅ ----------------------- 
 
@@ -171,17 +178,35 @@ d3.json("sources/newsapi.json").then(function (data) {
       var boxMaxRowItems = 10;
 
       var geometry = new THREE.BoxGeometry(boxSizeX, boxSizeY, boxSizeZ);
-      var material = new THREE.MeshPhysicalMaterial({
-        color: 'rgb(255,255,255)',
-        side: THREE.FrontSide,
-        map: dynamicTexture.texture
-      });
-      var mesh = new THREE.Mesh(geometry, material);
+
+      //Colors of the Roof
+
+      var whiteroof = [
+        new THREE.MeshPhysicalMaterial({color: 'rgb(255,255,255)', side: THREE.FrontSide, map: dynamicTexture.texture}),
+        new THREE.MeshPhysicalMaterial({color: 'rgb(255,255,255)', side: THREE.FrontSide, map: dynamicTexture.texture}),
+        new THREE.MeshBasicMaterial({color: 'rgb(245,245,235)', side: THREE.DoubleSide}),
+        new THREE.MeshBasicMaterial({color: 'rgb(245,245,235)', side: THREE.DoubleSide}), 
+        new THREE.MeshPhysicalMaterial({color: 'rgb(255,255,255)', side: THREE.FrontSide, map: dynamicTexture.texture}),
+        new THREE.MeshPhysicalMaterial({color: 'rgb(255,255,255)', side: THREE.FrontSide, map: dynamicTexture.texture}),
+      ];
+
+      var blackroof = [
+        new THREE.MeshPhysicalMaterial({color: 'rgb(255,255,255)', side: THREE.FrontSide, map: dynamicTexture.texture}),
+        new THREE.MeshPhysicalMaterial({color: 'rgb(255,255,255)', side: THREE.FrontSide, map: dynamicTexture.texture}),
+        new THREE.MeshBasicMaterial({color: 'rgb(5,8,12)', side: THREE.DoubleSide}),
+        new THREE.MeshBasicMaterial({color: 'rgb(5,8,12)', side: THREE.DoubleSide}), 
+        new THREE.MeshPhysicalMaterial({color: 'rgb(255,255,255)', side: THREE.FrontSide, map: dynamicTexture.texture}),
+        new THREE.MeshPhysicalMaterial({color: 'rgb(255,255,255)', side: THREE.FrontSide, map: dynamicTexture.texture}),
+      ];
+
+      var blackroof = new THREE.MeshFaceMaterial(blackroof); 
+      var mesh = new THREE.Mesh(geometry, blackroof);
+
       mesh.position.x = Math.random() * 15 - 0.5;
       mesh.position.y = boxSizeY / 2;
       mesh.position.z = Math.random() * 10 - 0.5;
       groupedObjectsA.add(mesh);
-      
+
       mesh.castShadow = true;
       
       var boxRowBreak = boxMaxRowItems * (boxSizeX + boxDistance);
@@ -200,26 +225,26 @@ d3.json("sources/newsapi.json").then(function (data) {
 
     // 🌞 LIGHT SETTINGS -------------------------- 
 
-    var light = new THREE.PointLight(0xFFFFFF, 1, 1000);
-    light.position.set(0, 0, 210);
-    scene.add(light);
+    const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 );
+				hemiLight.position.set( 0, 20, 0 );
+				scene.add( hemiLight );
 
-    var light = new THREE.PointLight(0xFFFFFF, 2, 2000);
-    light.position.set(0, -211, 50);
-    scene.add(light);
-
-    var light = new THREE.PointLight(0xFFFFFF, 2, 2000);
-    light.position.set(-211, 0, 50);
-    scene.add(light);
-
-    var light = new THREE.PointLight(0xFFFFFF, 1, 2000);
-    light.position.set(200, 211, 50);
-    scene.add(light);
+				const dirLight = new THREE.DirectionalLight( 0xffffff );
+				dirLight.position.set( - 3, 10, - 10 );
+				dirLight.castShadow = true;
+				dirLight.shadow.camera.top = 2;
+				dirLight.shadow.camera.bottom = - 2;
+				dirLight.shadow.camera.left = - 2;
+				dirLight.shadow.camera.right = 2;
+				dirLight.shadow.camera.near = 0.1;
+				dirLight.shadow.camera.far = 40;
+				scene.add( dirLight );
 
     // 👉 🌇 MAKE IT VISIBLE -------------------------- 
 
     scene.add(groupedObjectsA);
-    scene.add(floor);
+    //scene.add(floor);
+    //Want to see Camera-Path? ->
     // scene.add(cameraPath);
 
     // 🎛 RENDER SETTINGS -------------------------- 
@@ -234,72 +259,13 @@ d3.json("sources/newsapi.json").then(function (data) {
     renderer.shadowMapType = THREE.PCFSoftShadowMap;
     renderer.setClearColor('rgb(30,30,30)');
     document.body.appendChild(renderer.domElement);
+    }
 
-  }
+    // 🔄 ANIMATION SETTINGS -------------------------- 
 
-  // 🔄 ANIMATION SETTINGS -------------------------- 
-
-  function animate() {
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);   
-    
-  }
-
-  // 🔶 These cubes help you to get an orientation in space -------------------------- 
-
-  function helper() {
-
-    var helperObj, geometry, material;
-    var helperObjSize = 0.1;
-    var helperSize = 3;
-    var helperloader = new THREE.FontLoader();
-
-    geometry = new THREE.BoxGeometry(helperObjSize, helperObjSize, helperObjSize); material = new THREE.MeshNormalMaterial(); helperObj = new THREE.Mesh(geometry, material);
-    helperObj.position.x = 0; helperObj.position.y = 0; helperObj.position.z = 0; scene.add(helperObj);
-    geometry = new THREE.BoxGeometry(helperObjSize, helperObjSize, helperObjSize); material = new THREE.MeshNormalMaterial(); helperObj = new THREE.Mesh(geometry, material);
-    helperObj.position.x = -helperSize; helperObj.position.y = -helperSize; helperObj.position.z = helperSize; scene.add(helperObj);
-    geometry = new THREE.BoxGeometry(helperObjSize, helperObjSize, helperObjSize); material = new THREE.MeshNormalMaterial(); helperObj = new THREE.Mesh(geometry, material);
-    helperObj.position.x = -helperSize; helperObj.position.y = helperSize; helperObj.position.z = helperSize; scene.add(helperObj);
-    geometry = new THREE.BoxGeometry(helperObjSize, helperObjSize, helperObjSize); material = new THREE.MeshNormalMaterial(); helperObj = new THREE.Mesh(geometry, material);
-    helperObj.position.x = helperSize; helperObj.position.y = helperSize; helperObj.position.z = helperSize; scene.add(helperObj);
-    geometry = new THREE.BoxGeometry(helperObjSize, helperObjSize, helperObjSize); material = new THREE.MeshNormalMaterial(); helperObj = new THREE.Mesh(geometry, material);
-    helperObj.position.x = helperSize; helperObj.position.y = helperSize; helperObj.position.z = -helperSize; scene.add(helperObj);
-    geometry = new THREE.BoxGeometry(helperObjSize, helperObjSize, helperObjSize); material = new THREE.MeshNormalMaterial(); helperObj = new THREE.Mesh(geometry, material);
-    helperObj.position.x = helperSize; helperObj.position.y = -helperSize; helperObj.position.z = -helperSize; scene.add(helperObj);
-    geometry = new THREE.BoxGeometry(helperObjSize, helperObjSize, helperObjSize); material = new THREE.MeshNormalMaterial(); helperObj = new THREE.Mesh(geometry, material);
-    helperObj.position.x = helperSize; helperObj.position.y = -helperSize; helperObj.position.z = helperSize; scene.add(helperObj);
-    geometry = new THREE.BoxGeometry(helperObjSize, helperObjSize, helperObjSize); material = new THREE.MeshNormalMaterial(); helperObj = new THREE.Mesh(geometry, material);
-    helperObj.position.x = -helperSize; helperObj.position.y = helperSize; helperObj.position.z = -helperSize; scene.add(helperObj);
-    geometry = new THREE.BoxGeometry(helperObjSize, helperObjSize, helperObjSize); material = new THREE.MeshNormalMaterial(); helperObj = new THREE.Mesh(geometry, material);
-    helperObj.position.x = -helperSize; helperObj.position.y = -helperSize; helperObj.position.z = -helperSize; scene.add(helperObj);
-
-    helperloader.load('../sources/fonts/helvetiker_regular.typeface.json', function (font) { var geometry = new THREE.TextGeometry('X', { font: font, size: 0.2, height: 0.1, }); var material = new THREE.MeshNormalMaterial(); var helperTxt = new THREE.Mesh(geometry, material); helperTxt.position.x = 2.5; helperTxt.position.y = 0; helperTxt.position.z = 0; scene.add(helperTxt); });
-    helperloader.load('../sources/fonts/helvetiker_regular.typeface.json', function (font) { var geometry = new THREE.TextGeometry('Y', { font: font, size: 0.2, height: 0.1, }); var material = new THREE.MeshNormalMaterial(); var helperTxt = new THREE.Mesh(geometry, material); helperTxt.position.x = 0; helperTxt.position.y = 2.5; helperTxt.position.z = 0; scene.add(helperTxt); });
-    helperloader.load('../sources/fonts/helvetiker_regular.typeface.json', function (font) { var geometry = new THREE.TextGeometry('Z', { font: font, size: 0.2, height: 0.1, }); var material = new THREE.MeshNormalMaterial(); var helperTxt = new THREE.Mesh(geometry, material); helperTxt.position.x = 0; helperTxt.position.y = 0; helperTxt.position.z = 2.5; scene.add(helperTxt); });
-
-    var dir = new THREE.Vector3(0, 1, 0);
-    dir.normalize();
-    var origin = new THREE.Vector3(0, 0, 0);
-    var length = 2;
-    var hex = 0x00ff00;
-    var arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
-    scene.add(arrowHelper);
-
-    var dir = new THREE.Vector3(1, 0, 0);
-    dir.normalize();
-    var origin = new THREE.Vector3(0, 0, 0);
-    var length = 2;
-    var hex = 0x0000ff;
-    var arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
-    scene.add(arrowHelper);
-
-    var dir = new THREE.Vector3(0, 0, 1);
-    dir.normalize();
-    var origin = new THREE.Vector3(0, 0, 0);
-    var length = 2;
-    var hex = 0xff0000;
-    var arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
-    scene.add(arrowHelper);
-  }
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);   
+    }
 
 });
