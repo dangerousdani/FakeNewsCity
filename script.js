@@ -29,9 +29,6 @@ var scrollbox3 = document.getElementById("scrollbox3");
 var groupedObjectsA = new THREE.Group();
 var groupedObjectsB = new THREE.Group();
 var groupedObjectsC = new THREE.Group();
-var groupedObjectsD = new THREE.Group();
-var groupedObjectsE = new THREE.Group();
-var groupedObjectsF = new THREE.Group();
 
 // 🎥 CAM SETTING -------------------------- 
 
@@ -45,11 +42,11 @@ camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 //Vector values: (- = nachlinks/+ = nachrechts, - = nach unten/+ = nach oben, - = nach hinten/ + = nach vorne)
 const pathCurve = new THREE.CatmullRomCurve3([
   //Froschperspektive
-  new THREE.Vector3(-3, 0.5, 5),
-  new THREE.Vector3(-3, 0.5, 1),
+  new THREE.Vector3(-4, 0.5, 4),
+  new THREE.Vector3(-4, 0.5, 1),
   new THREE.Vector3(3, 0.5, 1),
-  new THREE.Vector3(3, 0.5, -4),
-  new THREE.Vector3(1, 0.5, 5),
+  new THREE.Vector3(3, 0.5, 1),
+  new THREE.Vector3(3, 0.5, 5),
   //Wechsel in die Zwischenstufe
   new THREE.Vector3(1, 5, 10),
   //Wechsel in die Vogelperspektive
@@ -70,6 +67,7 @@ function update(renderer, scene, camera) {
   userSpeed = userSpeed * 0.8;
   userPosition = userPosition + userSpeed;
   //console.log(userPosition);
+  //camera.rotation.z += 90 * Math.PI / 180;
   camera.lookAt(0, 0, 0);
 
   if (userPosition >= 0 && userPosition < 1) {
@@ -132,7 +130,7 @@ return mesh;
 // Pedestal
 
 const pedestalgeo = new THREE.BoxGeometry(20, 2, 11);
-const pedestalmat = new THREE.MeshPhongMaterial({ color: 0x000000 });
+const pedestalmat = new THREE.MeshPhongMaterial({ color: 'rgb(5,8,12)' });
 var pedestal = new THREE.Mesh(pedestalgeo, pedestalmat);
 pedestal.position.y = -1;
 scene.add(pedestal);
@@ -190,65 +188,201 @@ d3.json("sources/newsapi.json").then(function (data) {
 
     var boxPositionX = 0;
     var boxPositionZ = 0;
-
+    
     // 👇 YOUR 3D OBJECTS ✅ ----------------------
 
-    const cols = 2;
-    const rows = 2;
+    //1. For Schleife (Platziert 3 Districts, Umbruch nach 3)
+    for (var x = startRow; x <= 2; x++) {
 
-    for (var i = startRow; i <= cols; i++) {
-      for (var j = startRow; j <= rows; j++) {
+      var groupPositionX = -8;
+      var groupPositionZ = -4;
+
+      groupedObjectsA.position.x = groupPositionX;
+      groupedObjectsA.position.z = groupPositionZ;
+
+      //2. For Schleife (Platziert 6 Häuser, Umbruch nach 3)
+      for (var i = startRow; i <= 5; i++) {
+
         // console.log('🌤 Data: ' + i);
 
         var text = data.article[i].tweet;
-        console.log('🌤 tweet: ' + text);
+        console.log('🐦 tweet: ' + text);
+
+        var roof = data.article[i].roof;
+        console.log('🏠roof: ' + roof);
 
         var dynamicTexture = new THREEx.DynamicTexture(2000, 2000)
         dynamicTexture.context.font = "bold " + (0.2 * 512) + "px Arial";
 
-        dynamicTexture.clear('gray')
+        dynamicTexture.clear('rgb(170,150,150)')
         dynamicTexture.drawTextCooked({
           text: text,
           lineHeight: 0.07,
-          fillStyle: 'white',
+          fillStyle: 'black',
         })
-
-        var boxSizeX = 1;
-        var boxSizeY = Math.random() * (5 - 2) + 1;
-        var boxSizeZ = 1;
-
-        var boxDistance = 0.5;
-        var boxMaxRowItems = 6;
-
-        var geometry = new THREE.BoxGeometry(boxSizeX, boxSizeY, boxSizeZ);
 
         //Colors of the Roof
 
         var whiteroof = [
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshBasicMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
-          new THREE.MeshBasicMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
         ];
 
         var blackroof = [
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshBasicMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
-          new THREE.MeshBasicMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
         ];
 
         var blackroof = new THREE.MeshFaceMaterial(blackroof);
-        var mesh = new THREE.Mesh(geometry, blackroof);
+        var whiteroof = new THREE.MeshFaceMaterial(whiteroof);
+
+        var geometry = new THREE.BoxGeometry(boxSizeX, boxSizeY, boxSizeZ);
+        
+        if (roof == 'blackroof') {
+          var mesh = new THREE.Mesh(geometry, blackroof);
+          mesh.position.x = boxPositionX;
+        mesh.position.y = 0;
+        mesh.position.z = boxPositionZ;
+        groupedObjectsA.add(mesh);
+        mesh.castShadow = true;
+        } if (roof == 'whiteroof') {
+          var mesh = new THREE.Mesh(geometry, whiteroof);
+          mesh.position.x = boxPositionX;
+        mesh.position.y = 0;
+        mesh.position.z = boxPositionZ;
+        groupedObjectsA.add(mesh);
+        mesh.castShadow = true;
+        }
+
+        var boxSizeX = 1;
+        var boxSizeY = Math.random() * (10 - 4) + 3;
+        var boxSizeZ = 1;
+
+        var boxDistance = 0.5;
+        var boxMaxRowItems = 3;
+
+        var boxRowBreak = boxMaxRowItems * (boxSizeX + boxDistance);
+
+        console.log('boxRowBreak: ' + boxRowBreak);
+
+        boxPositionX = boxPositionX + boxDistance + boxSizeX;
+        if (boxPositionX >= boxRowBreak) {
+          boxPositionX = 0;
+          boxPositionZ = boxPositionZ + boxDistance + boxSizeZ;
+        }
+
+      } //2. For Schleife ENDE
+
+      //Warum geht das nicht? und wo kann man lesen was außer .position noch so geht?
+      //groupedObjectsA.size.x = groupSizeX;
+      //groupedObjectsA.size.z = groupSizeZ;
+
+      /*var groupSizeX = 4;
+      var groupSizeZ = 4;
+
+      var groupDistance = 0;
+      var groupMaxRowItems = 3;
+
+      var groupRowBreak = groupMaxRowItems * (groupSizeX + groupDistance);
+
+      /*groupPositionX = groupPositionX + groupDistance + groupSizeX;
+      if (groupPositionX >= groupRowBreak) {
+        groupPositionX = x;
+        groupPositionZ = groupPositionZ + groupDistance + groupSizeZ;
+      }*/
+
+    }//1. For Schleife ENDE
+
+    //1. For Schleife (Platziert 3 Districts, Umbruch nach 3)
+    //for (var x = startRow; x <= 2; x++) {
+
+      var groupBPositionX = -2;
+      var groupBPositionZ = -13;
+
+      groupedObjectsB.position.x = groupBPositionX;
+      groupedObjectsB.position.z = groupBPositionZ;
+
+      //2. For Schleife (Platziert 6 Häuser, Umbruch nach 3)
+      for (var i = startRow; i <= 17; i++) {
+
+        // console.log('🌤 Data: ' + i);
+
+        var text = data.article[i].tweet;
+        console.log('🐦 tweet: ' + text);
+
+        var roof = data.article[i].roof;
+        console.log('🏠roof: ' + roof);
+
+        var dynamicTexture = new THREEx.DynamicTexture(2000, 2000)
+        dynamicTexture.context.font = "bold " + (0.2 * 512) + "px Arial";
+
+        dynamicTexture.clear('rgb(170,150,150)')
+        dynamicTexture.drawTextCooked({
+          text: text,
+          lineHeight: 0.07,
+          fillStyle: 'black',
+        })
+
+        //Colors of the Roof
+
+        var whiteroof = [
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+        ];
+
+        var blackroof = [
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+        ];
+
+        var blackroof = new THREE.MeshFaceMaterial(blackroof);
+        var whiteroof = new THREE.MeshFaceMaterial(whiteroof);
+
+        var geometry = new THREE.BoxGeometry(boxSizeX, boxSizeY, boxSizeZ);
+        
+        if (roof == 'blackroof') {
+          var mesh = new THREE.Mesh(geometry, blackroof);
+          mesh.position.x = boxPositionX;
+        mesh.position.y = 0;
+        mesh.position.z = boxPositionZ;
+        groupedObjectsB.add(mesh);
+        mesh.castShadow = true;
+        } if (roof == 'whiteroof') {
+          var mesh = new THREE.Mesh(geometry, whiteroof);
+          mesh.position.x = boxPositionX;
+        mesh.position.y = 0;
+        mesh.position.z = boxPositionZ;
+        groupedObjectsB.add(mesh);
+        mesh.castShadow = true;
+        }
+
+        var boxSizeX = 1;
+        var boxSizeY = Math.random() * (10 - 4) + 3;
+        var boxSizeZ = 1;
+
+        var boxDistance = 0.5;
+        var boxMaxRowItems = 3;
 
         mesh.position.x = boxPositionX;
         mesh.position.y = 0;
         mesh.position.z = boxPositionZ;
-        scene.add(mesh);
+        groupedObjectsB.add(mesh);
 
         mesh.castShadow = true;
 
@@ -262,26 +396,148 @@ d3.json("sources/newsapi.json").then(function (data) {
           boxPositionZ = boxPositionZ + boxDistance + boxSizeZ;
         }
 
-        const animate = () => {
-          requestAnimationFrame(animate)
-          if (userPosition > 0.4 && userPosition < 0.7) {
-    mesh.scale.boxSizeY += 0.1 
-  }
-  renderer.render(scene, camera)
+      } //2. For Schleife ENDE
+
+      //Warum geht das nicht? und wo kann man lesen was außer .position noch so geht?
+      //groupedObjectsA.size.x = groupSizeX;
+      //groupedObjectsA.size.z = groupSizeZ;
+
+      /*var groupSizeX = 4;
+      var groupSizeZ = 4;
+
+      var groupDistance = 0;
+      var groupMaxRowItems = 3;
+
+      var groupRowBreak = groupMaxRowItems * (groupSizeX + groupDistance);
+
+      /*groupPositionX = groupPositionX + groupDistance + groupSizeX;
+      if (groupPositionX >= groupRowBreak) {
+        groupPositionX = x;
+        groupPositionZ = groupPositionZ + groupDistance + groupSizeZ;
+      }*/
+
+    //}//1. For Schleife ENDE
+
+    //1. For Schleife (Platziert 3 Districts, Umbruch nach 3)
+    //for (var x = startRow; x <= 2; x++) {
+
+      var groupCPositionX = 4;
+      var groupCPositionZ = -22;
+
+      groupedObjectsC.position.x = groupCPositionX;
+      groupedObjectsC.position.z = groupCPositionZ;
+
+      //2. For Schleife (Platzie=r17 6 Häuser, Umbruch nach 3)
+      for (var i = startRow; i < 18; i++) {
+
+        // console.log('🌤 Data: ' + i);
+
+        var text = data.article[i].tweet;
+        console.log('🐦 tweet: ' + text);
+
+        var roof = data.article[i].roof;
+        console.log('🏠roof: ' + roof);
+
+        var dynamicTexture = new THREEx.DynamicTexture(2000, 2000)
+        dynamicTexture.context.font = "bold " + (0.2 * 512) + "px Arial";
+
+        dynamicTexture.clear('rgb(170,150,150)')
+        dynamicTexture.drawTextCooked({
+          text: text,
+          lineHeight: 0.07,
+          fillStyle: 'black',
+        })
+
+        //Colors of the Roof
+
+        var whiteroof = [
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+        ];
+
+        var blackroof = [
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+        ];
+
+        var blackroof = new THREE.MeshFaceMaterial(blackroof);
+        var whiteroof = new THREE.MeshFaceMaterial(whiteroof);
+
+        var geometry = new THREE.BoxGeometry(boxSizeX, boxSizeY, boxSizeZ);
+        
+        if (roof == 'blackroof') {
+          var mesh = new THREE.Mesh(geometry, blackroof);
+          mesh.position.x = boxPositionX;
+        mesh.position.y = 0;
+        mesh.position.z = boxPositionZ;
+        groupedObjectsC.add(mesh);
+        mesh.castShadow = true;
+        } if (roof == 'whiteroof') {
+          var mesh = new THREE.Mesh(geometry, whiteroof);
+          mesh.position.x = boxPositionX;
+        mesh.position.y = 0;
+        mesh.position.z = boxPositionZ;
+        groupedObjectsC.add(mesh);
+        mesh.castShadow = true;
+        }
+       
+        var boxSizeX = 1;
+        var boxSizeY = Math.random() * (10 - 4) + 3;
+        var boxSizeZ = 1;
+
+        var boxDistance = 0.5;
+        var boxMaxRowItems = 3;
+
+        mesh.position.x = boxPositionX;
+        mesh.position.y = 0;
+        mesh.position.z = boxPositionZ;
+        groupedObjectsC.add(mesh);
+
+        mesh.castShadow = true;
+
+        var boxRowBreak = boxMaxRowItems * (boxSizeX + boxDistance);
+
+        console.log('boxRowBreak: ' + boxRowBreak);
+
+        boxPositionX = boxPositionX + boxDistance + boxSizeX;
+        if (boxPositionX >= boxRowBreak) {
+          boxPositionX = 0;
+          boxPositionZ = boxPositionZ + boxDistance + boxSizeZ;
         }
 
-        animate();
-      }
-    }
+      } //2. For Schleife ENDE
 
-    groupedObjectsA.position.x = -boxPositionX / 2;
-    groupedObjectsA.position.z = -boxPositionZ / 2;
+      //Warum geht das nicht? und wo kann man lesen was außer .position noch so geht?
+      //groupedObjectsA.size.x = groupSizeX;
+      //groupedObjectsA.size.z = groupSizeZ;
 
-    //GENERATE DISTRICTS
+      /*var groupSizeX = 4;
+      var groupSizeZ = 4;
+
+      var groupDistance = 0;
+      var groupMaxRowItems = 3;
+
+      var groupRowBreak = groupMaxRowItems * (groupSizeX + groupDistance);
+
+      /*groupPositionX = groupPositionX + groupDistance + groupSizeX;
+      if (groupPositionX >= groupRowBreak) {
+        groupPositionX = x;
+        groupPositionZ = groupPositionZ + groupDistance + groupSizeZ;
+      }*/
+
+    //}//1. For Schleife ENDE
 
     // 👉 🌇 MAKE IT VISIBLE -------------------------- 
 
-    scene.add(groupedObjectsA, groupedObjectsB, groupedObjectsC, groupedObjectsD, groupedObjectsE, groupedObjectsF);
+    scene.add(groupedObjectsA, groupedObjectsB, groupedObjectsC);
     //scene.add(floor);
     //Want to see Camera-Path? ->
     // scene.add(cameraPath);

@@ -9,7 +9,8 @@
       "likes": 1234,
       "comments": 456,
       "retweets": 789,
-      "keyword": "US ELECTION"
+      "keyword": "US ELECTION",
+      "roof": "whiteroof"
     },
     { "number": "2",
       "tweet": "Joe Biden will not set a foot in the white house. 170k votes in Michigan have just been discovered to not have a trace to a registered voter in Michigan.",
@@ -19,7 +20,8 @@
       "likes": 1100,
       "comments": 456,
       "retweets": 789,
-      "keyword": "US ELECTION"
+      "keyword": "US ELECTION",
+      "roof": "blackroof"
     },
     { "number": "3",
       "tweet": "In Detroit, there are FAR MORE VOTES THAN PEOPLE. Nothing can be done to cure that giant scam. I win Michigan!",
@@ -28,7 +30,8 @@
       "likes": 1020,
       "comments": 456,
       "retweets": 789,
-      "keyword": "US ELECTION"
+      "keyword": "US ELECTION",
+      "roof": "blackroof"
     },
     { "number": "4",
       "tweet": "AZ update: apparently the use of sharpie pens in gop precincts is causing ballots to be invalidated. Could be huge numbers of mostly Trump supporters. More to come",
@@ -37,7 +40,8 @@
       "likes": 123,
       "comments": 456,
       "retweets": 789,
-      "keyword": "US ELECTION"
+      "keyword": "US ELECTION",
+      "roof": "blackroof"
     },
     { "number": "5",
       "tweet": "BREAKING: Wisconsin has more votes than people who are registered to vote. Total number of registered voters: 3,129,000 Total number of votes cast: 3,239,920 This is direct evidence of fraud.",
@@ -46,7 +50,8 @@
       "likes": 123,
       "comments": 456,
       "retweets": 789,
-      "keyword": "US ELECTION"
+      "keyword": "US ELECTION",
+      "roof": "whiteroof"
     },
     { "number": "6",
       "tweet": "Joe Biden will not set a foot in the white house. 170k votes in Michigan have just been discovered to not have a trace to a registered voter in Michigan.",
@@ -55,7 +60,8 @@
       "likes": 123,
       "comments": 456,
       "retweets": 789,
-      "keyword": "US ELECTION"
+      "keyword": "US ELECTION",
+      "roof": "blackroof"
     },
     { "number": "7",
       "tweet": "In certain swing states, there were more votes than people who voted, and in big numbers. Does that not really matter? Stopping Poll Watchers, voting for unsuspecting people, fake ballots and so much more. Such egregious conduct. We will win!",
@@ -64,7 +70,8 @@
       "likes": 123,
       "comments": 456,
       "retweets": 789,
-      "keyword": "US ELECTION"
+      "keyword": "US ELECTION",
+      "roof": "whiteroof"
     },
     { "number": "8",
       "tweet": "More Testing equals more Cases. We have best testing. Deaths WAY DOWN. Hospitals have great additional capacity! Doing much better than Europe. Therapeutics working!",
@@ -75,7 +82,8 @@
       "likes": 123,
       "comments": 456,
       "retweets": 789,
-      "keyword": "CORONA VIRUS"
+      "keyword": "CORONA VIRUS",
+      "roof": "blackroof"
     },
     { "number": "9",
       "tweet": "I WON THIS ELECTION, BY A LOT!",
@@ -85,7 +93,8 @@
       "likes": 123,
       "comments": 456,
       "retweets": 789,
-      "keyword": "US ELECTION"
+      "keyword": "US ELECTION",
+      "roof": "blackroof"
     },
     { "number": "10",
       "tweet": "Fake election results in Nevada, also!",
@@ -95,7 +104,8 @@
       "likes": 123,
       "comments": 456,
       "retweets": 789,
-      "keyword": "US ELECTION"
+      "keyword": "US ELECTION",
+      "roof": "blackroof"
     },
     { "number": "11",
       "tweet": "#",
@@ -103,7 +113,8 @@
       "link": "#",
       "likes": 123,
       "comments": 456,
-      "retweets": 789
+      "retweets": 789,
+      "roof": "whiteroof"
     },
     { "number": "12",
       "tweet": "#",
@@ -111,7 +122,8 @@
       "link": "#",
       "likes": 123,
       "comments": 456,
-      "retweets": 789
+      "retweets": 789,
+      "roof": "blackroof"
     },
     { "number": "13",
       "tweet": "#",
@@ -119,7 +131,8 @@
       "link": "#",
       "likes": 123,
       "comments": 456,
-      "retweets": 789
+      "retweets": 789,
+      "roof": "blackroof"
     },
     { "number": "14",
       "tweet": "#",
@@ -127,7 +140,8 @@
       "link": "#",
       "likes": 123,
       "comments": 456,
-      "retweets": 789
+      "retweets": 789,
+      "roof": "blackroof"
     },
     { "number": "15",
       "tweet": "#",
@@ -135,7 +149,8 @@
       "link": "#",
       "likes": 123,
       "comments": 456,
-      "retweets": 789
+      "retweets": 789,
+      "roof": "blackroof"
     },
     { "number": "16",
       "tweet": "#",
@@ -143,7 +158,8 @@
       "link": "#",
       "likes": 123,
       "comments": 456,
-      "retweets": 789
+      "retweets": 789,
+      "roof": "whiteroof"
     },
     { "number": "17",
       "tweet": "#",
@@ -151,7 +167,8 @@
       "link": "#",
       "likes": 123,
       "comments": 456,
-      "retweets": 789
+      "retweets": 789,
+      "roof": "whiteroof"
     },
     { "number": "18",
       "tweet": "#",
@@ -159,7 +176,8 @@
       "link": "#",
       "likes": 123,
       "comments": 456,
-      "retweets": 789
+      "retweets": 789,
+      "roof": "blackroof"
     },
     { "number": "19",
       "tweet": "#",
@@ -167,7 +185,8 @@
       "link": "#",
       "likes": 123,
       "comments": 456,
-      "retweets": 789
+      "retweets": 789,
+      "roof": "whiteroof"
     },
     { "number": "20",
       "tweet": "#",
@@ -175,14 +194,16 @@
       "link": "#",
       "likes": 123,
       "comments": 456,
-      "retweets": 789
+      "retweets": 789,
+      "roof": "blackroof"
     },
     {"tweet": "random tweet 21",
       "account": "#",
       "link": "#",
       "likes": 123,
       "comments": 456,
-      "retweets": 789
+      "retweets": 789,
+      "roof": "blackroof"
     },
     {"tweet": "random tweet 22",
       "account": "#",
