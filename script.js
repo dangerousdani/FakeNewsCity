@@ -1,12 +1,15 @@
 // 📀 LOAD THREE JS -------------------------- 
 
+//FrameRate Stats
+javascript:(function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//mrdoob.github.io/stats.js/build/stats.min.js';document.head.appendChild(script);})()
+
 import * as THREE from './sources/three.module.js';
 
 // 🌐 GLOBAL VARIABLES -------------------------- 
 
-var scene, renderer, camera;
-var lon = 0, lat = 0;
-var phi = 0, theta = 0;
+let scene, renderer, camera;
+let lon = 0, lat = 0;
+let phi = 0, theta = 0;
 
 let userSpeed = 0;
 let userPosition = 0;
@@ -17,25 +20,20 @@ window.addEventListener('wheel', function (wheelEvent) {
   userSpeed += wheelEvent.deltaY * 0.00002;
 })
 
-var startRow = 0;
-//var numberOfObjects = startRow + 2;
+let scrollbox1 = document.getElementById("scrollbox1");
+let scrollbox2 = document.getElementById("scrollbox2");
+let scrollbox3 = document.getElementById("scrollbox3");
 
-var scrollbox1 = document.getElementById("scrollbox1");
-var scrollbox2 = document.getElementById("scrollbox2");
-var scrollbox3 = document.getElementById("scrollbox3");
-
-// 🌐 GROUPS SETTING -------------------------- 
-
-var groupedObjectsA = new THREE.Group();
-var groupedObjectsB = new THREE.Group();
-var groupedObjectsC = new THREE.Group();
+/*let stats = new Stats();
+stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+document.body.appendChild( stats.dom ); */
 
 // 🎥 CAM SETTING -------------------------- 
 
-var fov = 70;
-var aspect = window.innerWidth / window.innerHeight;
-var near = 0.01;
-var far = 100;
+let fov = 70;
+let aspect = window.innerWidth / window.innerHeight;
+let near = 0.01;
+let far = 100;
 camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
 //Camera Path
@@ -43,14 +41,15 @@ camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 const pathCurve = new THREE.CatmullRomCurve3([
   //Froschperspektive
   new THREE.Vector3(-4, 0.5, 4),
-  new THREE.Vector3(-4, 0.5, 1),
-  new THREE.Vector3(3, 0.5, 1),
-  new THREE.Vector3(3, 0.5, 1),
-  new THREE.Vector3(3, 0.5, 5),
+  new THREE.Vector3(-4, 0.5, 2),
+  new THREE.Vector3(3, 0.5, 2),
+  new THREE.Vector3(4, 0.5, 5),
+  new THREE.Vector3(4, -10, 5),
   //Wechsel in die Zwischenstufe
   new THREE.Vector3(1, 5, 10),
   //Wechsel in die Vogelperspektive
-  new THREE.Vector3(0, 20, 0),
+  new THREE.Vector3(1, 30, 3),
+  new THREE.Vector3(1, 40, 3),
 ]);
 
 const pathPoints = pathCurve.getPoints(50);
@@ -75,6 +74,8 @@ function update(renderer, scene, camera) {
   } else {
     userPosition = 0;
   }
+
+  //Animierte Textboxen
 
   if (userPosition >= 0 && userPosition < 0.1) {
     document.getElementById("scrollbox1").style.opacity = 1;
@@ -106,12 +107,8 @@ scene = new THREE.Scene();
 scene.background = new THREE.Color(0x96A4B6);
 scene.fog = new THREE.Fog(0xFFFFFF, 15, 35);
 
-// 🔶 HELPER CUBES ✅ ----------------------- 
-
-// helper();
-
 // 👇 FLOOR ✅ -----------------------
-/*var floor = generateFloor(1000, 1000);
+var floor = generateFloor(1000, 1000);
 floor.position.x = -4;
 floor.name = 'floor';
 floor.rotation.x = Math.PI/2;
@@ -125,15 +122,16 @@ var mat = new THREE.MeshPhongMaterial({
 var mesh = new THREE.Mesh(geo, mat);
 mesh.receiveShadow = true;
 return mesh;
-}*/
+}
+scene.add(floor);
 
 // Pedestal
 
-const pedestalgeo = new THREE.BoxGeometry(20, 2, 11);
+/* const pedestalgeo = new THREE.BoxGeometry(20, 2, 14);
 const pedestalmat = new THREE.MeshPhongMaterial({ color: 'rgb(5,8,12)' });
-var pedestal = new THREE.Mesh(pedestalgeo, pedestalmat);
+let pedestal = new THREE.Mesh(pedestalgeo, pedestalmat);
 pedestal.position.y = -1;
-scene.add(pedestal);
+scene.add(pedestal); */
 
 // 🌞 LIGHT SETTINGS -------------------------- 
 
@@ -167,9 +165,10 @@ document.body.appendChild(renderer.domElement);
 
 // 🔄 ANIMATION SETTINGS -------------------------- 
 
+
 function animate() {
-  requestAnimationFrame(animate);
   renderer.render(scene, camera);
+  requestAnimationFrame(animate);
 }
 
 // 📊 LOAD JSON DATA ----------------------------------------
@@ -186,44 +185,66 @@ d3.json("sources/newsapi.json").then(function (data) {
 
   function init() {
 
-    var boxPositionX = 0;
-    var boxPositionZ = 0;
+    let boxPositionX = 0;
+    let boxPositionZ = 0;
+
     
+
     // 👇 YOUR 3D OBJECTS ✅ ----------------------
 
-    //1. For Schleife (Platziert 3 Districts, Umbruch nach 3)
-    for (var x = startRow; x <= 2; x++) {
+    let tweetID = 0;
+    let districtSize = 6;
+    let bufferX = -8;
+    let bufferZ = 0;
 
-      var groupPositionX = -8;
-      var groupPositionZ = -4;
+    for (let j = 0; j <= 2; j++) {
+      for (let k = -5; k <= -3; k++) {
+        scene.add(generate_district(bufferX, k + bufferZ, districtSize, tweetID));
+        tweetID += districtSize;
+      }
+      bufferX += 6
+      bufferZ -= 9
+    }
 
-      groupedObjectsA.position.x = groupPositionX;
-      groupedObjectsA.position.z = groupPositionZ;
+    function generate_district(valueX, valueZ, districtSize, tweetID) {
 
-      //2. For Schleife (Platziert 6 Häuser, Umbruch nach 3)
-      for (var i = startRow; i <= 5; i++) {
+      let groupedObjectsA = new THREE.Group();
 
-        // console.log('🌤 Data: ' + i);
+      let groupAPositionX = valueX;
+      let groupAPositionZ = valueZ;
 
-        var text = data.article[i].tweet;
+      groupedObjectsA.position.x = groupAPositionX;
+      groupedObjectsA.position.z = groupAPositionZ;
+
+      for (let i = 0; i < districtSize; i++) {
+
+        const boxSizeX = 1;
+        let boxSizeY = Math.random() * (10 - 4) + 3; //muss let sein
+        const boxSizeZ = 1;
+
+        let text = data.article[tweetID + i].tweet;
         console.log('🐦 tweet: ' + text);
 
-        var roof = data.article[i].roof;
+        let roof = data.article[tweetID + i].roof;
         console.log('🏠roof: ' + roof);
 
-        var dynamicTexture = new THREEx.DynamicTexture(2000, 2000)
+        let dynamicTexture = new THREEx.DynamicTexture(2000, 2000)
         dynamicTexture.context.font = "bold " + (0.2 * 512) + "px Arial";
 
         dynamicTexture.clear('rgb(170,150,150)')
         dynamicTexture.drawTextCooked({
           text: text,
-          lineHeight: 0.07,
+          lineHeight: 0.05,
           fillStyle: 'black',
         })
 
-        //Colors of the Roof
+        if (userPosition > 0.4 && userPosition < 0.7) {
+          boxSizeY += 1;
+        }
 
-        var whiteroof = [
+        // Colors of the Roof
+
+        let whiteroof = [
           new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
           new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
           new THREE.MeshPhysicalMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
@@ -232,7 +253,7 @@ d3.json("sources/newsapi.json").then(function (data) {
           new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
         ];
 
-        var blackroof = [
+        let blackroof = [
           new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
           new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
           new THREE.MeshPhysicalMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
@@ -241,303 +262,58 @@ d3.json("sources/newsapi.json").then(function (data) {
           new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
         ];
 
-        var blackroof = new THREE.MeshFaceMaterial(blackroof);
-        var whiteroof = new THREE.MeshFaceMaterial(whiteroof);
+        let blackroof2 = new THREE.MeshFaceMaterial(blackroof);
+        let whiteroof2 = new THREE.MeshFaceMaterial(whiteroof);
 
-        var geometry = new THREE.BoxGeometry(boxSizeX, boxSizeY, boxSizeZ);
-        
+        let geometry = new THREE.BoxGeometry(boxSizeX, boxSizeY, boxSizeZ);
+
+        let mesh;
         if (roof == 'blackroof') {
-          var mesh = new THREE.Mesh(geometry, blackroof);
+          mesh = new THREE.Mesh(geometry, blackroof2);
           mesh.position.x = boxPositionX;
-        mesh.position.y = 0;
-        mesh.position.z = boxPositionZ;
-        groupedObjectsA.add(mesh);
-        mesh.castShadow = true;
+          mesh.position.y = 0;
+          mesh.position.z = boxPositionZ;
+          groupedObjectsA.add(mesh);
+          mesh.castShadow = true;
         } if (roof == 'whiteroof') {
-          var mesh = new THREE.Mesh(geometry, whiteroof);
+          mesh = new THREE.Mesh(geometry, whiteroof2);
           mesh.position.x = boxPositionX;
-        mesh.position.y = 0;
-        mesh.position.z = boxPositionZ;
-        groupedObjectsA.add(mesh);
-        mesh.castShadow = true;
+          mesh.position.y = 0;
+          mesh.position.z = boxPositionZ;
+          groupedObjectsA.add(mesh);
+          mesh.castShadow = true;
         }
-
-        var boxSizeX = 1;
-        var boxSizeY = Math.random() * (10 - 4) + 3;
-        var boxSizeZ = 1;
-
-        var boxDistance = 0.5;
-        var boxMaxRowItems = 3;
-
-        var boxRowBreak = boxMaxRowItems * (boxSizeX + boxDistance);
-
-        console.log('boxRowBreak: ' + boxRowBreak);
-
-        boxPositionX = boxPositionX + boxDistance + boxSizeX;
-        if (boxPositionX >= boxRowBreak) {
-          boxPositionX = 0;
-          boxPositionZ = boxPositionZ + boxDistance + boxSizeZ;
-        }
-
-      } //2. For Schleife ENDE
-
-      //Warum geht das nicht? und wo kann man lesen was außer .position noch so geht?
-      //groupedObjectsA.size.x = groupSizeX;
-      //groupedObjectsA.size.z = groupSizeZ;
-
-      /*var groupSizeX = 4;
-      var groupSizeZ = 4;
-
-      var groupDistance = 0;
-      var groupMaxRowItems = 3;
-
-      var groupRowBreak = groupMaxRowItems * (groupSizeX + groupDistance);
-
-      /*groupPositionX = groupPositionX + groupDistance + groupSizeX;
-      if (groupPositionX >= groupRowBreak) {
-        groupPositionX = x;
-        groupPositionZ = groupPositionZ + groupDistance + groupSizeZ;
-      }*/
-
-    }//1. For Schleife ENDE
-
-    //1. For Schleife (Platziert 3 Districts, Umbruch nach 3)
-    //for (var x = startRow; x <= 2; x++) {
-
-      var groupBPositionX = -2;
-      var groupBPositionZ = -13;
-
-      groupedObjectsB.position.x = groupBPositionX;
-      groupedObjectsB.position.z = groupBPositionZ;
-
-      //2. For Schleife (Platziert 6 Häuser, Umbruch nach 3)
-      for (var i = startRow; i <= 17; i++) {
-
-        // console.log('🌤 Data: ' + i);
-
-        var text = data.article[i].tweet;
-        console.log('🐦 tweet: ' + text);
-
-        var roof = data.article[i].roof;
-        console.log('🏠roof: ' + roof);
-
-        var dynamicTexture = new THREEx.DynamicTexture(2000, 2000)
-        dynamicTexture.context.font = "bold " + (0.2 * 512) + "px Arial";
-
-        dynamicTexture.clear('rgb(170,150,150)')
-        dynamicTexture.drawTextCooked({
-          text: text,
-          lineHeight: 0.07,
-          fillStyle: 'black',
-        })
-
-        //Colors of the Roof
-
-        var whiteroof = [
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-        ];
-
-        var blackroof = [
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-        ];
-
-        var blackroof = new THREE.MeshFaceMaterial(blackroof);
-        var whiteroof = new THREE.MeshFaceMaterial(whiteroof);
-
-        var geometry = new THREE.BoxGeometry(boxSizeX, boxSizeY, boxSizeZ);
-        
-        if (roof == 'blackroof') {
-          var mesh = new THREE.Mesh(geometry, blackroof);
-          mesh.position.x = boxPositionX;
-        mesh.position.y = 0;
-        mesh.position.z = boxPositionZ;
-        groupedObjectsB.add(mesh);
-        mesh.castShadow = true;
-        } if (roof == 'whiteroof') {
-          var mesh = new THREE.Mesh(geometry, whiteroof);
-          mesh.position.x = boxPositionX;
-        mesh.position.y = 0;
-        mesh.position.z = boxPositionZ;
-        groupedObjectsB.add(mesh);
-        mesh.castShadow = true;
-        }
-
-        var boxSizeX = 1;
-        var boxSizeY = Math.random() * (10 - 4) + 3;
-        var boxSizeZ = 1;
-
-        var boxDistance = 0.5;
-        var boxMaxRowItems = 3;
 
         mesh.position.x = boxPositionX;
-        mesh.position.y = 0;
+        mesh.position.y = boxSizeY/2;
         mesh.position.z = boxPositionZ;
-        groupedObjectsB.add(mesh);
+        groupedObjectsA.add(mesh);
 
         mesh.castShadow = true;
 
-        var boxRowBreak = boxMaxRowItems * (boxSizeX + boxDistance);
+        let boxDistance = 0.5;
+        let boxMaxRowItems = 3;
 
-        console.log('boxRowBreak: ' + boxRowBreak);
-
+        let boxRowBreak = boxMaxRowItems * (boxSizeX + boxDistance);
         boxPositionX = boxPositionX + boxDistance + boxSizeX;
         if (boxPositionX >= boxRowBreak) {
           boxPositionX = 0;
           boxPositionZ = boxPositionZ + boxDistance + boxSizeZ;
         }
 
-      } //2. For Schleife ENDE
-
-      //Warum geht das nicht? und wo kann man lesen was außer .position noch so geht?
-      //groupedObjectsA.size.x = groupSizeX;
-      //groupedObjectsA.size.z = groupSizeZ;
-
-      /*var groupSizeX = 4;
-      var groupSizeZ = 4;
-
-      var groupDistance = 0;
-      var groupMaxRowItems = 3;
-
-      var groupRowBreak = groupMaxRowItems * (groupSizeX + groupDistance);
-
-      /*groupPositionX = groupPositionX + groupDistance + groupSizeX;
-      if (groupPositionX >= groupRowBreak) {
-        groupPositionX = x;
-        groupPositionZ = groupPositionZ + groupDistance + groupSizeZ;
-      }*/
-
-    //}//1. For Schleife ENDE
-
-    //1. For Schleife (Platziert 3 Districts, Umbruch nach 3)
-    //for (var x = startRow; x <= 2; x++) {
-
-      var groupCPositionX = 4;
-      var groupCPositionZ = -22;
-
-      groupedObjectsC.position.x = groupCPositionX;
-      groupedObjectsC.position.z = groupCPositionZ;
-
-      //2. For Schleife (Platzie=r17 6 Häuser, Umbruch nach 3)
-      for (var i = startRow; i < 18; i++) {
-
-        // console.log('🌤 Data: ' + i);
-
-        var text = data.article[i].tweet;
-        console.log('🐦 tweet: ' + text);
-
-        var roof = data.article[i].roof;
-        console.log('🏠roof: ' + roof);
-
-        var dynamicTexture = new THREEx.DynamicTexture(2000, 2000)
-        dynamicTexture.context.font = "bold " + (0.2 * 512) + "px Arial";
-
-        dynamicTexture.clear('rgb(170,150,150)')
-        dynamicTexture.drawTextCooked({
-          text: text,
-          lineHeight: 0.07,
-          fillStyle: 'black',
-        })
-
-        //Colors of the Roof
-
-        var whiteroof = [
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-        ];
-
-        var blackroof = [
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-        ];
-
-        var blackroof = new THREE.MeshFaceMaterial(blackroof);
-        var whiteroof = new THREE.MeshFaceMaterial(whiteroof);
-
-        var geometry = new THREE.BoxGeometry(boxSizeX, boxSizeY, boxSizeZ);
-        
-        if (roof == 'blackroof') {
-          var mesh = new THREE.Mesh(geometry, blackroof);
-          mesh.position.x = boxPositionX;
-        mesh.position.y = 0;
-        mesh.position.z = boxPositionZ;
-        groupedObjectsC.add(mesh);
-        mesh.castShadow = true;
-        } if (roof == 'whiteroof') {
-          var mesh = new THREE.Mesh(geometry, whiteroof);
-          mesh.position.x = boxPositionX;
-        mesh.position.y = 0;
-        mesh.position.z = boxPositionZ;
-        groupedObjectsC.add(mesh);
-        mesh.castShadow = true;
-        }
-       
-        var boxSizeX = 1;
-        var boxSizeY = Math.random() * (10 - 4) + 3;
-        var boxSizeZ = 1;
-
-        var boxDistance = 0.5;
-        var boxMaxRowItems = 3;
-
-        mesh.position.x = boxPositionX;
-        mesh.position.y = 0;
-        mesh.position.z = boxPositionZ;
-        groupedObjectsC.add(mesh);
-
-        mesh.castShadow = true;
-
-        var boxRowBreak = boxMaxRowItems * (boxSizeX + boxDistance);
-
-        console.log('boxRowBreak: ' + boxRowBreak);
-
-        boxPositionX = boxPositionX + boxDistance + boxSizeX;
-        if (boxPositionX >= boxRowBreak) {
-          boxPositionX = 0;
-          boxPositionZ = boxPositionZ + boxDistance + boxSizeZ;
+        if (userPosition > 0.4 && userPosition < 0.7) {
+          boxSizeY += 1;
+          mesh.position.y += 1;
         }
 
-      } //2. For Schleife ENDE
+      }
 
-      //Warum geht das nicht? und wo kann man lesen was außer .position noch so geht?
-      //groupedObjectsA.size.x = groupSizeX;
-      //groupedObjectsA.size.z = groupSizeZ;
+      
 
-      /*var groupSizeX = 4;
-      var groupSizeZ = 4;
+      // 👉 🌇 MAKE IT VISIBLE -------------------------- 
+      return groupedObjectsA;
+    }
 
-      var groupDistance = 0;
-      var groupMaxRowItems = 3;
-
-      var groupRowBreak = groupMaxRowItems * (groupSizeX + groupDistance);
-
-      /*groupPositionX = groupPositionX + groupDistance + groupSizeX;
-      if (groupPositionX >= groupRowBreak) {
-        groupPositionX = x;
-        groupPositionZ = groupPositionZ + groupDistance + groupSizeZ;
-      }*/
-
-    //}//1. For Schleife ENDE
-
-    // 👉 🌇 MAKE IT VISIBLE -------------------------- 
-
-    scene.add(groupedObjectsA, groupedObjectsB, groupedObjectsC);
     //scene.add(floor);
     //Want to see Camera-Path? ->
     // scene.add(cameraPath);
