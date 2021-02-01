@@ -93,7 +93,9 @@ THREEx.DynamicTexture.prototype.drawTextCooked = function(options){
 	context.fillStyle	= params.fillStyle;
 	context.font		= params.font;
 
-	var y	= (params.lineHeight + params.margin)*canvas.height
+  var y	= (params.lineHeight + options.marginTop)*canvas.height
+
+	//var y	= (params.lineHeight + params.margin)*canvas.height
 	while(text.length > 0 ){
 		// compute the text for specifically this line
 		var maxText	= computeMaxTextLength(text)

@@ -44,7 +44,7 @@ const pathCurve = new THREE.CatmullRomCurve3([
   new THREE.Vector3(-4, 0.5, 2),
   new THREE.Vector3(3, 0.5, 2),
   new THREE.Vector3(4, 0.5, 5),
-  new THREE.Vector3(4, -10, 5),
+  //new THREE.Vector3(4, -10, 5),   //Fahrt nach unten
   //Wechsel in die Zwischenstufe
   new THREE.Vector3(1, 5, 10),
   //Wechsel in die Vogelperspektive
@@ -164,12 +164,11 @@ renderer.setClearColor('rgb(30,30,30)');
 document.body.appendChild(renderer.domElement);
 
 // 🔄 ANIMATION SETTINGS -------------------------- 
-
-
+/*
 function animate() {
   renderer.render(scene, camera);
   requestAnimationFrame(animate);
-}
+} */
 
 // 📊 LOAD JSON DATA ----------------------------------------
 // Do not forget to load the D3 Framework in your HTML file!
@@ -187,8 +186,6 @@ d3.json("sources/newsapi.json").then(function (data) {
 
     let boxPositionX = 0;
     let boxPositionZ = 0;
-
-    
 
     // 👇 YOUR 3D OBJECTS ✅ ----------------------
 
@@ -217,9 +214,10 @@ d3.json("sources/newsapi.json").then(function (data) {
       groupedObjectsA.position.z = groupAPositionZ;
 
       for (let i = 0; i < districtSize; i++) {
-
+        
+        let fixedBoxSize = 2;
         const boxSizeX = 1;
-        let boxSizeY = Math.random() * (10 - 4) + 3; //muss let sein
+        let boxSizeY = Math.random() * 5 + fixedBoxSize; //muss let sein 0.5*6+2=5 5*0.1/100=0.005
         const boxSizeZ = 1;
 
         let text = data.article[tweetID + i].tweet;
@@ -227,21 +225,23 @@ d3.json("sources/newsapi.json").then(function (data) {
 
         let roof = data.article[tweetID + i].roof;
         console.log('🏠roof: ' + roof);
+        
 
-        let dynamicTexture = new THREEx.DynamicTexture(2000, 2000)
-        dynamicTexture.context.font = "bold " + (0.2 * 512) + "px Arial";
-
+        let dynamicTexture = new THREEx.DynamicTexture(1400, 1400*boxSizeY)
+        dynamicTexture.context.font = "12px Arial";
+ 
         dynamicTexture.clear('rgb(170,150,150)')
         dynamicTexture.drawTextCooked({
           text: text,
-          lineHeight: 0.05,
+          lineHeight: 0.1/boxSizeY,
           fillStyle: 'black',
+          marginTop: (boxSizeY-1)/boxSizeY
         })
 
         if (userPosition > 0.4 && userPosition < 0.7) {
           boxSizeY += 1;
         }
-
+    
         // Colors of the Roof
 
         let whiteroof = [
@@ -254,12 +254,12 @@ d3.json("sources/newsapi.json").then(function (data) {
         ];
 
         let blackroof = [
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshPhysicalMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshBasicMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshBasicMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide}),
+          new THREE.MeshBasicMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
+          new THREE.MeshBasicMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
+          new THREE.MeshBasicMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
+          new THREE.MeshBasicMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture  }),
         ];
 
         let blackroof2 = new THREE.MeshFaceMaterial(blackroof);
@@ -268,28 +268,25 @@ d3.json("sources/newsapi.json").then(function (data) {
         let geometry = new THREE.BoxGeometry(boxSizeX, boxSizeY, boxSizeZ);
 
         let mesh;
+        
         if (roof == 'blackroof') {
           mesh = new THREE.Mesh(geometry, blackroof2);
           mesh.position.x = boxPositionX;
           mesh.position.y = 0;
           mesh.position.z = boxPositionZ;
           groupedObjectsA.add(mesh);
-          mesh.castShadow = true;
         } if (roof == 'whiteroof') {
           mesh = new THREE.Mesh(geometry, whiteroof2);
           mesh.position.x = boxPositionX;
           mesh.position.y = 0;
           mesh.position.z = boxPositionZ;
           groupedObjectsA.add(mesh);
-          mesh.castShadow = true;
         }
 
         mesh.position.x = boxPositionX;
         mesh.position.y = boxSizeY/2;
         mesh.position.z = boxPositionZ;
         groupedObjectsA.add(mesh);
-
-        mesh.castShadow = true;
 
         let boxDistance = 0.5;
         let boxMaxRowItems = 3;
@@ -305,15 +302,10 @@ d3.json("sources/newsapi.json").then(function (data) {
           boxSizeY += 1;
           mesh.position.y += 1;
         }
-
       }
-
-      
-
       // 👉 🌇 MAKE IT VISIBLE -------------------------- 
       return groupedObjectsA;
     }
-
     //scene.add(floor);
     //Want to see Camera-Path? ->
     // scene.add(cameraPath);
