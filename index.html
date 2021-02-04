@@ -1,85 +1,91 @@
 <!DOCTYPE html>
 
-<script src='./sources/three.js'></script>
-<script src='./sources/threex.dynamictexture.js'></script>
+<script src='./sources/three.js'>
+</script>
+<script src='./sources/threex.dynamictexture.js'>
+</script>
 
 <html>
 
-  <head>
-    <link rel="stylesheet" type="text/css" href="style.css">
+<head>
+	<link rel="stylesheet" type="text/css" href="style.css">
 
-	  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-	  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0">
 
-	  <title>City of Fake News</title>
+	<title>City of Fake News</title>
 
-  	<!-- 📀 Load D3 framework data processing -->
-	  <script src="./sources/d3.min.js"></script>
-   
-  </head>
+	<!-- 📀 Load D3 framework data processing -->
+	<script src="./sources/d3.min.js">
+	</script>
 
-	<body>
+</head>
 
-		<!-- 📀 Load your JS file here 👇👇👇👇👇 -->
-     <script src="./sources/firstPersonControls.js"></script>
-		<script type="module" src="script.js"></script>
+<body>
 
-    <div class="textbox" id="scrollbox1">
-      <h1>YOUR WORLD IS WHAT YOU TWEET</h1>
-      <p> How we perceive our surrounding is shaped by the many information we consume daily. The World Wide Web is the ideal place for that - endless and quick. But often there is only little time to orientate yourself or to look around in peace. 
+	<!-- 📀 Load your JS file here 👇👇👇👇👇 -->
+	<script src="./sources/firstPersonControls.js">
+	</script>
+	<script type="module" src="script.js"></script>
 
-      Scroll to take a tour through our city shaped by the internet.
-      Do you know which way to go/see?</p>
-    </div>
+	<div class="textbox" id="scrollbox1">
+		<h1>YOUR WORLD IS WHAT YOU TWEET</h1>
+		<p> How we perceive our surrounding is shaped by the many information we consume daily. The World Wide Web is the ideal
+			place for that - endless and quick. But often there is only little time to orientate yourself or to look around in peace.
+			Scroll to take a tour through our city shaped by the internet. Do you know which way to go/see?</p>
+	</div>
 
-    <div class="textbox" id="scrollbox2">
-      <h1>SEARCHING FOR THE TRUTH</h1>
-      <p>Something seems off right? Hard to believe most of the things you see? 
-      // Hinweis darauf, dass es fake news sind  </p>
-    </div>
+	<div class="textbox" id="scrollbox2">
+		<h1>SEARCHING FOR THE TRUTH</h1>
+		<p>Something seems off right? Hard to believe most of the things you see? // Hinweis darauf, dass es fake news sind </p>
+	</div>
 
-    <div class="textbox" id="scrollbox3">
-      <h1>TRY THE BIRD'S EYE VIEW</h1>
-      <p>Did you get lost in the information overload? Change your perspective to have a better point of view. </p>
-    </div>
+	<div class="textbox" id="scrollbox3">
+		<h1>TRY THE BIRD'S EYE VIEW</h1>
+		<p>Did you get lost in the information overload? Change your perspective to have a better point of view. </p>
+	</div>
 
-    <div class="textbox" id="scrollbox4">
-      <h1>TRY THE BIRD'S EYE VIEW</h1>
-      <p>We are not there yet. As long as misinformation obscure the facts and are ever-growing, we cannot get a clear picture. It is time for you to take action. 
-      </p>
-    </div>
+	<div class="textbox" id="scrollbox4">
+		<h1>TRY THE BIRD'S EYE VIEW</h1>
+		<p>We are not there yet. As long as misinformation obscure the facts and are ever-growing, we cannot get a clear picture.
+			It is time for you to take action.
+		</p>
+	</div>
 
-    <div class="textbox" id="scrollbox5">
-      <h1>TRY THE BIRD'S EYE VIEW</h1>
-      <p>Just reading who the author of a message is brings us into a completely new way of looking at things. Now we can better judge a message. But there is more that can be done.
-      </p>
-    </div>
+	<div class="textbox" id="scrollbox5">
+		<h1>TRY THE BIRD'S EYE VIEW</h1>
+		<p>Just reading who the author of a message is brings us into a completely new way of looking at things. Now we can better
+			judge a message. But there is more that can be done.
+		</p>
+	</div>
 
-    <div class="textbox" id="scrollbox6">
-      <h1>TRY THE BIRD'S EYE VIEW</h1>
-      <p>Double check the URL. Sometimes it seems to be a famous newspaper. But often fake sites use just a similar looking URL.</p>
-    </div>
+	<div class="textbox" id="scrollbox6">
+		<h1>TRY THE BIRD'S EYE VIEW</h1>
+		<p>Double check the URL. Sometimes it seems to be a famous newspaper. But often fake sites use just a similar looking URL.</p>
+	</div>
 
-    <div class="textbox" id="scrollbox7">
-      <h1>TRY THE BIRD'S EYE VIEW</h1>
-      <p>Try to identify the original source of an information you read. Check that source against other sources. If other newspapers haven’t picked up this story it’s probably fake.</p>
-    </div>
+	<div class="textbox" id="scrollbox7">
+		<h1>TRY THE BIRD'S EYE VIEW</h1>
+		<p>Try to identify the original source of an information you read. Check that source against other sources. If other newspapers
+			haven’t picked up this story it’s probably fake.</p>
+	</div>
 
-    <div class="textbox" id="scrollbox8">
-      <h1>TRY THE BIRD'S EYE VIEW</h1>
-      <p>We are are responsible for what is shared in the web.</p>
-    </div>
+	<div class="textbox" id="scrollbox8">
+		<h1>TRY THE BIRD'S EYE VIEW</h1>
+		<p>We are are responsible for what is shared in the web.</p>
+	</div>
 
-    <div class="textbox" id="scrollbox9">
-      <h1>TRY THE BIRD'S EYE VIEW</h1>
-      <p>Now that you can no longer be fooled, you can better judge what to believe and what not to.</p>
-    </div>
+	<div class="textbox" id="scrollbox9">
+		<h1>TRY THE BIRD'S EYE VIEW</h1>
+		<p>Now that you can no longer be fooled, you can better judge what to believe and what not to.</p>
+	</div>
 
-    <div class="textbox" id="scrollbox10">
-      <h1>TRY THE BIRD'S EYE VIEW</h1>
-      <p>Journalists like netzpolitik.org work hard every day to give people like you such a perspective through well-researched articles and investigative journalism. If you want to say thank you you can do this here:</p>
-    </div>
+	<div class="textbox" id="scrollbox10">
+		<h1>TRY THE BIRD'S EYE VIEW</h1>
+		<p>Journalists like netzpolitik.org work hard every day to give people like you such a perspective through well-researched
+			articles and investigative journalism. If you want to say thank you you can do this here:</p>
+	</div>
 
-	</body>
+</body>
 
 </html>
