@@ -1,8 +1,8 @@
-/*import {
+  import {
 	MathUtils,
 	Spherical,
 	Vector3
-} from '../../../build/three.module.js';*/
+} from '/sources/three.module.js';
 
 var FirstPersonControls = function ( object, domElement ) {
 

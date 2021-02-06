@@ -86,6 +86,7 @@ THREEx.DynamicTexture.prototype.drawTextCooked = function(options){
 		fillStyle	: options.fillStyle !== undefined ? options.fillStyle : 'black',
 		font		: options.font !== undefined ? options.font : "bold "+(0.2*512)+"px Arial",
 	}
+  
 	// sanity check
 	console.assert(typeof(text) === 'string')
 
@@ -94,14 +95,13 @@ THREEx.DynamicTexture.prototype.drawTextCooked = function(options){
 	context.font		= params.font;
 
   var y	= (params.lineHeight + options.marginTop)*canvas.height
-
+  
 	//var y	= (params.lineHeight + params.margin)*canvas.height
 	while(text.length > 0 ){
 		// compute the text for specifically this line
 		var maxText	= computeMaxTextLength(text)
 		// update the remaining text
 		text	= text.substr(maxText.length)
-
 
 		// compute x based on params.align
 		var textSize	= context.measureText(maxText);
@@ -114,6 +114,7 @@ THREEx.DynamicTexture.prototype.drawTextCooked = function(options){
 		}else	console.assert( false )
 
 		// actually draw the text at the proper position
+    
 		this.context.fillText(maxText, x, y);
 
 		// goto the next line
