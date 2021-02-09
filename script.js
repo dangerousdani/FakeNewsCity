@@ -3,6 +3,7 @@
 import * as THREE from './sources/three.module.js';
 
 //FRAMERATE STATS 
+
 javascript: (function () { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); }; script.src = '//mrdoob.github.io/stats.js/build/stats.min.js'; document.head.appendChild(script); })()
 
 import { FirstPersonControls } from './sources/firstPersonControls.js';
@@ -14,15 +15,24 @@ let lon = 0, lat = 0;
 let phi = 0, theta = 0;
 
 let houses = [];
+let platforms = [];
+let mesh;
 
 let userSpeed = 0;
 let userPosition = 0;
+
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+const target = new THREE.Vector2();
+const windowHalf = new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2);
 
 window.addEventListener('wheel', function (wheelEvent) {
   wheelEvent.preventDefault();
   wheelEvent.stopPropagation();
   userSpeed += wheelEvent.deltaY * 0.00002;
 })
+
+window.addEventListener('mousemove', onMouseMove, false);
 
 let scrollbox1 = document.getElementById("scrollbox1");
 let scrollbox2 = document.getElementById("scrollbox2");
@@ -43,17 +53,37 @@ camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 //Camera Path
 //Vector values: (- = nachlinks/+ = nachrechts, - = nach unten/+ = nach oben, - = nach hinten/ + = nach vorne)
 const pathCurve = new THREE.CatmullRomCurve3([
-  //Froschperspektive
-  new THREE.Vector3(-8, 0.5, 10),
-  new THREE.Vector3(-8, 0.5, 3),
-  new THREE.Vector3(-4, 0.5, 2),
-  new THREE.Vector3(3, 0.5, 2),
-  new THREE.Vector3(4, 0.5, 5),
-  //new THREE.Vector3(4, -10, 5),   //Fahrt nach unten
+  // Froschperspektive
+  // Startpunkt
+  new THREE.Vector3(-6, 0.5, 9),
+  //1. Ecke
+  new THREE.Vector3(-6, 0.5, -2), // extra Punkt davor und danach, um die Rundung rauszunehmen
+  new THREE.Vector3(-6, 0.5, -4),
+  new THREE.Vector3(-4, 0.5, -4), // ansonsten wäre die Kurve zu rund und man würde durch Häuser gehen...
+  // 2.Ecke
+  new THREE.Vector3(5, 0.5, -4), // ich frag mich, ob das auch smarter geht...
+  new THREE.Vector3(6, 0.5, -4),
+  new THREE.Vector3(6, 0.5, -3),
+  // 3.Ecke
+  new THREE.Vector3(6, 0.5, 2.5),
+  new THREE.Vector3(6, 0.5, 3.8),
+  new THREE.Vector3(5, 0.5, 3.8),
+  // 4.Ecke
+  new THREE.Vector3(1, 0.5, 3.8),
+  new THREE.Vector3(0, 0.5, 3.8),
+  new THREE.Vector3(0, 0.5, 2.8),
+  // Endpunkt: Sackgasse
+  new THREE.Vector3(0, 0.5, 0.5),
+
+  //new THREE.Vector3(4, -10, 5),   // Fahrt nach unten
+
   // Wechsel in die Zwischenstufe
-  new THREE.Vector3(1, 5, 10),
+  new THREE.Vector3(1, 4, 16),
   // Wechsel in die Vogelperspektive
+  new THREE.Vector3(0, 20, 0),
   new THREE.Vector3(0, 30, 0),
+  new THREE.Vector3(0, 40, 0),
+  new THREE.Vector3(0, 50, 0),
   //new THREE.Vector3(1, 40, 3),
 ]);
 
@@ -64,15 +94,19 @@ let cameraPath = new THREE.Mesh(pathGeometry, pathMaterial);
 
 // 🌇 SCENE SETTING -------------------------- 
 
+var setcolor = 0x96A4B6;
 scene = new THREE.Scene();
-scene.background = new THREE.Color(0x96A4B6);
-scene.fog = new THREE.Fog(0xFFFFFF, 15, 35);
+scene.background = new THREE.Color(setcolor);
+scene.fog = new THREE.Fog(setcolor, 5, 16);
+// scene.fog = new THREE.Fog(setcolor, 25, 1000); // damit der Nebel verschwindet 
 
 // 👇 FLOOR ✅ -----------------------
+
 var floor = generateFloor(1000, 1000);
 floor.position.x = -4;
 floor.name = 'floor';
 floor.rotation.x = Math.PI / 2;
+floor.receiveShadow = true;
 
 function generateFloor(w, d) {
   var geo = new THREE.PlaneBufferGeometry(w, d);
@@ -103,10 +137,11 @@ scene.add(hemiLight);
 const dirLight = new THREE.DirectionalLight(0xffffff);
 dirLight.position.set(- 3, 10, - 10);
 dirLight.castShadow = true;
-dirLight.shadow.camera.top = 2;
-dirLight.shadow.camera.bottom = - 2;
-dirLight.shadow.camera.left = - 2;
-dirLight.shadow.camera.right = 2;
+dirLight.shadowDarkness = 1;
+dirLight.shadow.camera.top = 5;
+dirLight.shadow.camera.bottom = - 5;
+dirLight.shadow.camera.left = - 5;
+dirLight.shadow.camera.right = 5;
 dirLight.shadow.camera.near = 0.1;
 dirLight.shadow.camera.far = 40;
 scene.add(dirLight);
@@ -124,9 +159,20 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setClearColor('rgb(30,30,30)');
 document.body.appendChild(renderer.domElement);
 
-// 🔄 ANIMATION SETTINGS -------------------------- 
+// CALCULATES MOUSE POSITION 
+
+function onMouseMove(event) {
+  mouse.x = (event.clientX - windowHalf.x);
+  mouse.y = (event.clientY - windowHalf.x);
+  // console.log(mouse.x);
+}
 
 function animate() {
+
+  for (let i = 0; i < houses.length; i++) {
+    houses[i].animate();
+  }
+
   requestAnimationFrame(animate);
   render();
 }
@@ -135,20 +181,10 @@ function render() {
   renderer.render(scene, camera);
 }
 
-function grow_houses() {
-  for (var i = 0; i < houses.length; i++) {
-    if (houses[i].height == 1) {
-      houses[i].height += 3;
-    } else {
-      houses[i].height = houses[i].height;
-    }
-  }
-}
-
 // 📊 LOAD JSON DATA ----------------------------------------
 // Do not forget to load the D3 Framework in your HTML file!
 
-d3.json("sources/newsapi.json").then(function (data) {
+d3.json("sources/newnewsapi.json").then(function (data) {
 
   // 🚀 RUN MAIN FUNCTIONS -------------------------- 
 
@@ -162,32 +198,30 @@ function init(data) {
 
   let tweets = [];
   for (var i = 0; i < data.article.length; i++) {
-    tweets.push(data.article[i].tweet);
+    tweets.push(data.article[i].title);
   }
-  console.log('🐦 tweet: ' + tweets);
+  // console.log('🐦 tweet: ' + tweets);
 
   let roof = [];
   for (var i = 0; i < data.article.length; i++) {
     roof.push(data.article[i].roof);
   }
-  console.log('🏠 roof: ' + roof);
+  // console.log('🏠 roof: ' + roof);
 
   generate_city(tweets, roof);
 
   controls = new FirstPersonControls(camera, renderer.domElement);
   controls.movementSpeed = 1000;
-  controls.lookSpeed = 0.1;
+  controls.lookSpeed = 0.1; 
 
-  // 🔶 HELPER CUBES ✅ ----------------------- 
-
-  helper();
+  helper(); // Koordinatensystem  
 }
 
 // 🎯 CLASS FOR SINGLE HOUSE -------------------------- 
 
 class House {
 
-  constructor(_xPos, _yPos, _zPos, _height, _tweetString, _fixedBoxSizeY, _roofColor) {
+  constructor(_xPos, _yPos, _zPos, _height, _tweetString, _fixedBoxSizeY, _roofColor, _neueZahl) {
     this.xPos = _xPos;
     this.yPos = _yPos;
     this.zPos = _zPos;
@@ -197,67 +231,166 @@ class House {
     this.width = 1;
     this.depth = 1;
 
+    // this.tweetString = this.lineBreak(22, _tweetString);
+    // console.log(this.lineBreak(28, _tweetString));
     this.tweetString = _tweetString;
 
     this.dynamicTexture = new THREEx.DynamicTexture(300, 300 * this.height)
 
-    this.dynamicTexture.clear('rgb(170,150,150)')
+    this.dynamicTexture.clear('rgb(29,41,81)')
     this.dynamicTexture.drawTextCooked({
       text: this.tweetString,
       lineHeight: 0.1 / this.height,
-      fillStyle: 'black',
-      font: "18px Arial",
-      marginTop: ((this.height - this.fixedBoxSizeY) / this.height) / 2
+      emissive: 1,
+      //transparent: true, 
+      blending: THREE.AdditiveBlending, 
+      fillStyle: "white",//"rgba(62,57,60,0.9)",//'white',
+      font: "18px Courier",
+      marginTop: ((this.height - this.fixedBoxSizeY + 1) / this.height) // da fixedBoxSize noch zu hoch ist.
     })
 
-    // COLORS OF THE ROOF 
-/*
-    let whiteroof = [
-      new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide}),
-      new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide}),
-      new THREE.MeshLambertMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
-      new THREE.MeshLambertMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
-      new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide}),
-      new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide}),
-    ];
+    // 🏠 GEOMETRY OF THE HOUSE 
 
-    let blackroof = [
-      new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide}),
-      new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide}),
-      new THREE.MeshLambertMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
-      new THREE.MeshLambertMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
-      new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide}),
-      new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide}),
-    ];
-
-    let blackroof2 = new THREE.Mesh(blackroof);
-    let whiteroof2 = new THREE.Mesh(whiteroof);
-*/ 
-    if (_roofColor == 'whiteroof') {
-      this.mesh = new THREE.Mesh(this.geometry, this.whiteroof);
-    } else {
-      this.mesh = new THREE.Mesh(this.geometry, this.whiteroof);
-    }
-
-    this.material = new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, map: this.dynamicTexture.texture });
     this.geometry = new THREE.BoxBufferGeometry(this.width, this.height, this.depth);
+
+    // COLORS OF THE ROOF AND BUILDING
+
+    let buildingColor = "rgb(62,57,60)";
+    this.roofColor = "rgb(0,0,0)";
+
+    // Die Dächer der Häuser sollen zu 10% weiß und 90% schwarz sein und das durch eine zufällige Anordnung
+    let colorProbability = Math.random();
+
+    if (colorProbability < 0.5) {
+      this.roofColor = "rgb(255,255,255)";
+    }
+    // emissiveMap: new THREE.Texture
+    this.material = [
+      new THREE.MeshLambertMaterial({ color: buildingColor, map: this.dynamicTexture.texture }),
+      new THREE.MeshLambertMaterial({ color: buildingColor, map: this.dynamicTexture.texture }),
+      new THREE.MeshLambertMaterial({ color: this.roofColor }),
+      new THREE.MeshLambertMaterial({ color: this.roofColor }),
+      new THREE.MeshLambertMaterial({ color: buildingColor, map: this.dynamicTexture.texture }),
+      new THREE.MeshLambertMaterial({ color: buildingColor, map: this.dynamicTexture.texture })
+    ];
+
     this.mesh = new THREE.Mesh(this.geometry, this.material);
+
+    this.geometry.castShadow = true;
+    this.geometry.receiveShadow = true;
+
+    // console.log('blöder shadow ' + this.geometry.castShadow);
+
     this.mesh.position.x = this.xPos + this.width / 2;
-    this.mesh.position.y = this.yPos / 2;
+    this.mesh.position.y = this.yPos + this.height / 2;
     this.mesh.position.z = this.zPos + this.depth / 2;
   }
-  /*
-    animation () {
-    requestAnimationFrame(animation);
-    if (userPosition > 0.4 && userPosition < 0.6) {
-      this.mesh.scale.y += 0.1;
-  
+
+  // 🏢 GROWING HOUSES 
+
+  animate() {
+
+    let growingSpeed = 0.008;
+    let roofColor = this.roofColor;
+
+    //Die weißen Häuser sollen langsamer als die schwarzen Häuser wachsen
+    if (roofColor == "rgb(255,255,255)") {
+      growingSpeed = 0.002;
+    } else {
+      growingSpeed = 0.008;
+    }
+
+    //Die Häuser sollen nur beim Perspektivenwechseln wachsen
+    if (userPosition > 0.4 && userPosition < 0.8) {
+      this.mesh.scale.y += Math.random() * growingSpeed;
     } else {
       this.mesh.scale.y = this.mesh.scale.y;
     }
-    renderer.render(scene, camera);
+
   }
-*/
+
+  // ADDING LINE BREAKS 
+  /*
+    lineBreak(linebreakat, text) {
+  
+      let spaceMemory = 0; // wie viele Spaces zusätzlich gemacht wurden
+      let stringwithbreaks = [];
+      let currentPosition = 0;
+      let backspace = linebreakat;
+      let spacer = 0; // extra Spaces a
+  
+      for (var line = 0; line < 10; line++) {
+        while (true) {
+          if (currentPosition + backspace >= text.length) {
+            for (var i = 0; i < backspace; i++) {
+              stringwithbreaks.push(text[i + currentPosition])
+            }
+            return stringwithbreaks.join("");
+          }
+          if (backspace == 0) {
+            for (var i = 0; i < linebreakat; i++) {
+              stringwithbreaks.push(text[i + currentPosition])
+            }
+            currentPosition = stringwithbreaks.length - spaceMemory;
+            backspace = linebreakat;
+            break
+          }
+          if (text.charAt(backspace + currentPosition) == " ") {
+  
+            for (var i = 0; i < backspace; i++) {
+              stringwithbreaks.push(text[i + currentPosition])
+            }
+            stringwithbreaks.push("ä");
+            currentPosition = stringwithbreaks.length - spaceMemory;
+            backspace = linebreakat;
+            break
+          } else {
+            backspace--;
+          }
+        }
+        for (var i = 0; i < stringwithbreaks.length; i++) {
+          if (stringwithbreaks[i] == 'ä') {
+            stringwithbreaks[i] = ' ';
+            for (var j = 0; j < linebreakat - (i % linebreakat); j++) {
+              spaceMemory++;
+              stringwithbreaks.push(' ');
+            }
+          }
+        }
+        for (var i = 0; i < spacer; i++){
+          spaceMemory++
+          stringwithbreaks.push(' ');
+        }
+        spacer++;
+      }
+      return stringwithbreaks.join('');
+    }
+  */
+}
+
+// 🎯 CLASS FOR PLATFORM -------------------------- 
+
+class Platform {
+
+  constructor(_xPos, _yPos, _zPos) {
+    this.xPos = _xPos;
+    this.yPos = _yPos;
+    this.zPos = _zPos;
+
+    this.height = 0.05;
+    this.width = 4.5;
+    this.depth = 3;
+
+    // 🏠 GEOMETRY OF THE HOUSE
+
+    this.geometry = new THREE.BoxBufferGeometry(this.width, this.height, this.depth);
+    this.material = new THREE.MeshPhongMaterial({ color: "rgb(10,16,24)" });
+    this.mesh = new THREE.Mesh(this.geometry, this.material);
+
+    this.mesh.position.x = (this.xPos + this.width / 2) - 0.3;
+    this.mesh.position.y = this.yPos + this.height / 2;
+    this.mesh.position.z = (this.zPos + this.depth / 2) - 0.3;
+  }
 }
 
 // 🎯 FUNCTION TO GENERATE 3X2 DISTRICT -------------------------- 
@@ -275,15 +408,15 @@ function generate_district(_offsetX, _offsetZ, tweets, tweetID, roof) {
   let fixedBoxSizeY = 2;
   let districtSize = 6;
 
-  console.log("generate_district");
+  // console.log("generate_district");
 
   for (var i = 0; i < districtSize; i++) {
 
     let tweetText = tweets[tweetID + i];
     let roofText = roof[tweetID + i];
-    console.log(roofText);
+    // console.log(roofText);
 
-    let boxHeight = Math.random() * 5 + fixedBoxSizeY;
+    let boxHeight = Math.random() * 2.5 + fixedBoxSizeY;
     let boxRowBreak = boxMaxRowItems * (boxSizeX + boxDistance);
 
     if (boxPositionX >= boxRowBreak) {
@@ -291,11 +424,11 @@ function generate_district(_offsetX, _offsetZ, tweets, tweetID, roof) {
       boxPositionZ = boxPositionZ + boxDistance + boxSizeZ;
     }
 
-    var house = new House(boxPositionX + _offsetX, 0, boxPositionZ + _offsetZ, boxHeight, tweetText, fixedBoxSizeY, roofText);
+    const house = new House(boxPositionX + _offsetX, 0, boxPositionZ + _offsetZ, boxHeight, tweetText, fixedBoxSizeY, roofText);
 
     boxPositionX = boxPositionX + boxDistance + boxSizeX;
 
-    houses.push(house);
+    houses.push(house); //Array von houses -> fügt ein house dem array hinzu
     scene.add(house.mesh);
   }
 }
@@ -307,7 +440,7 @@ function generate_city(tweets, roof) {
   const districtSize = 6;
   const bufferX = 6;
   const bufferZ = 4;
-  const districts = 3; //wenn mehr häuser als daten in der datenbank sind, gehts nicht.
+  const districts = 4; // wenn mehr häuser als daten in der datenbank sind, gehts nicht.
 
   let tweetID = 0;
 
@@ -318,6 +451,10 @@ function generate_city(tweets, roof) {
     for (let k = 0; k < districts; k++) {
       generate_district(bufferX * j - offsetX, bufferZ * k - offsetZ, tweets, tweetID, roof);
       tweetID += districtSize;
+
+      const platform = new Platform(bufferX * j - offsetX, 0, bufferZ * k - offsetZ);
+      platforms.push(platform);
+      scene.add(platform.mesh);
     }
   }
 }
@@ -329,15 +466,11 @@ function update(renderer, scene, camera) {
   userSpeed = userSpeed * 0.8;
   userPosition = userPosition + userSpeed;
   //console.log(userPosition);
-  //camera.rotation.z += 90 * Math.PI / 180;
-  //camera.lookAt(0, 0, 0);
-  if (userPosition >= 0 && userPosition < 0.4) {
-    camera.lookAt(pathCurve.getPointAt(userPosition + 0.0001));
+  if (userPosition >= 0 && userPosition < 0.375) {
+    camera.lookAt(pathCurve.getPointAt(userPosition + 0.01));
   } else {
-    camera.lookAt(0, 0, 0);
+    camera.lookAt(0, 8, 0);
   }
-
-  //camera.lookAt(pathCurve.getPointAt(userPosition+0.0001));
 
   if (userPosition >= 0 && userPosition < 1) {
     camera.position.copy(pathCurve.getPointAt(userPosition));
@@ -405,6 +538,36 @@ function update(renderer, scene, camera) {
     document.getElementById("scrollbox10").style.opacity = 0;
   }
 
+  // 👀 CAMERA MOVING ON MOUSE MOVEMENT 
+
+  // console.log(mouse.x);
+  /*
+  if (mouse.x > 0) {
+      target.x = (1 - mouse.x) * 0.002;
+      target.y = (1 - mouse.y) * 0.002;
+  
+      camera.rotation.x += 0.1 * (target.y - camera.rotation.x); // nach oben
+      camera.rotation.y += 0.3 * (target.x - camera.rotation.y); // nach rechts 
+   }    
+      else {
+      target.x = (1 - mouse.x) * 0.002;
+      target.y = (1 - mouse.y) * 0.002;
+  
+      camera.rotation.x = 0.5 * (target.y - camera.rotation.x); // nach oben
+      camera.rotation.y = 0.3 * (target.x - camera.rotation.y); // nach links 
+      }*/
+
+  if (userPosition > 0 && userPosition < 0.4) {
+
+    target.x = (mouse.x) * 0.002;
+    //target.y = (1 - mouse.y) * 0.02;
+    //camera.rotation.x += 0.5 * (target.y - camera.rotation.x); // nach oben
+    camera.rotation.y += -(target.x - mouse.x) * 0.0002; // nach rechts 
+  } else {
+    camera.rotation.y = 0;
+  }
+  // console.log(camera.rotation.y)
+
   requestAnimationFrame(function () {
     update(renderer, scene, camera);
   });
@@ -441,140 +604,3 @@ function helper() {
   var arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
   scene.add(arrowHelper);
 }
-
-  /*controls = new FirstPersonControls( camera, renderer.domElement );
-      controls.movementSpeed = 1000;
-      controls.lookSpeed = 0.1;*/
-
-  // 👇 YOUR 3D OBJECTS ✅ ----------------------
-
-  /*let districtSize = 6;
-  let tweetID = 0;
-  let bufferX = -10;
-  let bufferZ = 5;
-
-  for (let j = 0; j <= 3; j++) {
-    for (let k = -6; k <= -3; k++) {
-
-      generate_district(districtSize, bufferX, k, tweetID);
-      //scene.add(generate_district(bufferX, k + bufferZ, districtSize, tweetID, data));
-      tweetID += districtSize;
-    }
-    bufferX += 6
-  }
-
-}
-
-  /*
-    function generate_district(valueX, valueZ, districtSize, tweetID, data) {
-
-      let groupedObjectsA = new THREE.Group();
-
-      let groupAPositionX = valueX;
-      let groupAPositionZ = valueZ;
-
-      groupedObjectsA.position.x = groupAPositionX;
-      groupedObjectsA.position.z = groupAPositionZ;
-
-      for (let i = 0; i < districtSize; i++) {
-
-        let fixedBoxSize = 1;
-        const boxSizeX = 1;
-        let boxSizeY = Math.random() * 2 + fixedBoxSize; //muss let sein 
-        const boxSizeZ = 1;
-
-        let text = data.article[tweetID + i].tweet;
-        console.log('🐦 tweet: ' + text);
-
-        let roof = data.article[tweetID + i].roof;
-        console.log('🏠roof: ' + roof);
-
-        // TEXT ON HOUSES 
-
-        let dynamicTexture = new THREEx.DynamicTexture(1400, 1400 * boxSizeY)
-        dynamicTexture.context.font = "1px Arial";
-
-        dynamicTexture.clear('rgb(170,150,150)')
-        dynamicTexture.drawTextCooked({
-          text: text,
-          lineHeight: 0.1 / boxSizeY,
-          fillStyle: 'black',
-          marginTop: (boxSizeY - fixedBoxSize) / boxSizeY
-        })
-
-        // COLORS OF THE ROOF 
-
-        let whiteroof = [
-          new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshLambertMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
-          new THREE.MeshLambertMaterial({ color: 'rgb(245,245,235)', side: THREE.DoubleSide }),
-          new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-        ];
-
-        let blackroof = [
-          new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshLambertMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
-          new THREE.MeshLambertMaterial({ color: 'rgb(5,8,12)', side: THREE.DoubleSide }),
-          new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-          new THREE.MeshLambertMaterial({ color: 'rgb(255,255,255)', emissive: 0xaa9292, side: THREE.FrontSide, map: dynamicTexture.texture }),
-        ];
-
-        let blackroof2 = new THREE.MeshFaceMaterial(blackroof);
-        let whiteroof2 = new THREE.MeshFaceMaterial(whiteroof);
-
-        let geometry = new THREE.BoxGeometry(boxSizeX, boxSizeY, boxSizeZ);
-
-        let mesh;
-
-        if (roof == 'blackroof') {
-          mesh = new THREE.Mesh(geometry, blackroof2);
-          mesh.position.x = boxPositionX;
-          mesh.position.y = 0;
-          mesh.position.z = boxPositionZ;
-          groupedObjectsA.add(mesh);
-        } if (roof == 'whiteroof') {
-          mesh = new THREE.Mesh(geometry, whiteroof2);
-          mesh.position.x = boxPositionX;
-          mesh.position.y = 0;
-          mesh.position.z = boxPositionZ;
-          groupedObjectsA.add(mesh);
-        }
-
-        mesh.position.x = boxPositionX;
-        mesh.position.y = boxSizeY / 2;
-        mesh.position.z = boxPositionZ;
-        groupedObjectsA.add(mesh);
-
-        let boxDistance = 0.5;
-        let boxMaxRowItems = 3;
-
-        let boxRowBreak = boxMaxRowItems * (boxSizeX + boxDistance);
-        boxPositionX = boxPositionX + boxDistance + boxSizeX;
-        if (boxPositionX >= boxRowBreak) {
-          boxPositionX = 0;
-          boxPositionZ = boxPositionZ + boxDistance + boxSizeZ;
-        }
-
-        // ANIMATION HOUSES GROWING 
-
-        let render = function () {
-          requestAnimationFrame(render);
-          if (userPosition > 0.4 && userPosition < 0.6) {
-            mesh.scale.y += 0.1;
-
-          } else {
-            mesh.scale.y = mesh.scale.y;
-          }
-          renderer.render(scene, camera);
-        }
-
-        render(); 
-      }
-      // 👉 🌇 MAKE IT VISIBLE -------------------------- 
-      return groupedObjectsA;
-    }
-  
-  */

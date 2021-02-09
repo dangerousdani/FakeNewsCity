@@ -85,6 +85,9 @@ THREEx.DynamicTexture.prototype.drawTextCooked = function(options){
 		align		: options.align !== undefined ? options.align : 'left',
 		fillStyle	: options.fillStyle !== undefined ? options.fillStyle : 'black',
 		font		: options.font !== undefined ? options.font : "bold "+(0.2*512)+"px Arial",
+    emissive  : 'white',
+    //emissive  :options.emissive !== undefined ? options.emissive : 'white',
+    emissiveIntensity: 1,
 	}
   
 	// sanity check
@@ -137,6 +140,7 @@ THREEx.DynamicTexture.prototype.drawTextCooked = function(options){
 		}
 		return maxText
 	}
+
 }
 
 /**
