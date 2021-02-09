@@ -37,6 +37,8 @@ window.addEventListener('mousemove', onMouseMove, false);
 let scrollbox1 = document.getElementById("scrollbox1");
 let scrollbox2 = document.getElementById("scrollbox2");
 let scrollbox3 = document.getElementById("scrollbox3");
+let scrollbox4 = document.getElementById("scrollbox4");
+let scrollbox5 = document.getElementById("scrollbox5");
 
 /*let stats = new Stats();
 stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -83,7 +85,6 @@ const pathCurve = new THREE.CatmullRomCurve3([
   new THREE.Vector3(0, 20, 0),
   new THREE.Vector3(0, 30, 0),
   new THREE.Vector3(0, 40, 0),
-  new THREE.Vector3(0, 50, 0),
   //new THREE.Vector3(1, 40, 3),
 ]);
 
@@ -235,17 +236,18 @@ class House {
     // console.log(this.lineBreak(28, _tweetString));
     this.tweetString = _tweetString;
 
-    this.dynamicTexture = new THREEx.DynamicTexture(300, 300 * this.height)
+    this.dynamicTexture = new THREEx.DynamicTexture(400, 400 * this.height)
 
     this.dynamicTexture.clear('rgb(29,41,81)')
     this.dynamicTexture.drawTextCooked({
+      background: "black", //der hintergrund muss schwarz zeit damit die emissiveMap (als Maske) funktioniert
       text: this.tweetString,
       lineHeight: 0.1 / this.height,
       emissive: 1,
       //transparent: true, 
       blending: THREE.AdditiveBlending, 
       fillStyle: "white",//"rgba(62,57,60,0.9)",//'white',
-      font: "18px Courier",
+      font: "24px Helvetica",
       marginTop: ((this.height - this.fixedBoxSizeY + 1) / this.height) // da fixedBoxSize noch zu hoch ist.
     })
 
@@ -255,8 +257,9 @@ class House {
 
     // COLORS OF THE ROOF AND BUILDING
 
-    let buildingColor = "rgb(62,57,60)";
+    let buildingColor = "rgb(27,30,43)";
     this.roofColor = "rgb(0,0,0)";
+    let emissiveColor = "rgb(255,255,255)";
 
     // Die Dächer der Häuser sollen zu 10% weiß und 90% schwarz sein und das durch eine zufällige Anordnung
     let colorProbability = Math.random();
@@ -266,12 +269,25 @@ class House {
     }
     // emissiveMap: new THREE.Texture
     this.material = [
-      new THREE.MeshLambertMaterial({ color: buildingColor, map: this.dynamicTexture.texture }),
-      new THREE.MeshLambertMaterial({ color: buildingColor, map: this.dynamicTexture.texture }),
+      new THREE.MeshLambertMaterial({ 
+        color: buildingColor,
+        emissiveIntensity: 1,
+        emissive: emissiveColor,
+        emissiveMap: this.dynamicTexture.texture,
+        shininess: 1,
+        reflectivity: 100
+      }),
+      new THREE.MeshLambertMaterial({ 
+        color: buildingColor,
+        emissiveIntensity: 1,
+        emissive: emissiveColor,
+        emissiveMap: this.dynamicTexture.texture,
+        reflectivity: 10,
+      }),
       new THREE.MeshLambertMaterial({ color: this.roofColor }),
       new THREE.MeshLambertMaterial({ color: this.roofColor }),
-      new THREE.MeshLambertMaterial({ color: buildingColor, map: this.dynamicTexture.texture }),
-      new THREE.MeshLambertMaterial({ color: buildingColor, map: this.dynamicTexture.texture })
+      new THREE.MeshLambertMaterial({ color: buildingColor, emissiveIntensity: 1, emissive: emissiveColor, emissiveMap: this.dynamicTexture.texture,}),
+      new THREE.MeshLambertMaterial({ color: buildingColor, emissiveIntensity: 1, emissive: emissiveColor, emissiveMap: this.dynamicTexture.texture })
     ];
 
     this.mesh = new THREE.Mesh(this.geometry, this.material);
@@ -478,64 +494,36 @@ function update(renderer, scene, camera) {
     userPosition = 0;
   }
 
-  if (userPosition >= 0 && userPosition < 0.1) {
+  //SCROLLBOXEN TEXTBLÖCKE
+
+  if (userPosition >= 0 && userPosition < 0.02) {
     document.getElementById("scrollbox1").style.opacity = 1;
   } else {
     document.getElementById("scrollbox1").style.opacity = 0;
   }
 
-  if (userPosition > 0.1 && userPosition < 0.2) {
+  if (userPosition > 0.15 && userPosition < 0.19) {
     document.getElementById("scrollbox2").style.opacity = 1;
   } else {
     document.getElementById("scrollbox2").style.opacity = 0;
   }
 
-  if (userPosition > 0.2 && userPosition < 0.3) {
+  if (userPosition > 0.35 && userPosition < 0.5) {
     document.getElementById("scrollbox3").style.opacity = 1;
   } else {
     document.getElementById("scrollbox3").style.opacity = 0;
   }
 
-  if (userPosition > 0.3 && userPosition < 0.4) {
+  if (userPosition > 0.53 && userPosition < 0.63) {
     document.getElementById("scrollbox4").style.opacity = 1;
   } else {
     document.getElementById("scrollbox4").style.opacity = 0;
   }
 
-  if (userPosition > 0.4 && userPosition < 0.5) {
+  if (userPosition > 0.70 && userPosition < 1) {
     document.getElementById("scrollbox5").style.opacity = 1;
   } else {
     document.getElementById("scrollbox5").style.opacity = 0;
-  }
-
-  if (userPosition > 0.5 && userPosition < 0.6) {
-    document.getElementById("scrollbox6").style.opacity = 1;
-  } else {
-    document.getElementById("scrollbox6").style.opacity = 0;
-  }
-
-  if (userPosition > 0.7 && userPosition < 0.8) {
-    document.getElementById("scrollbox7").style.opacity = 1;
-  } else {
-    document.getElementById("scrollbox7").style.opacity = 0;
-  }
-
-  if (userPosition > 0.8 && userPosition < 0.9) {
-    document.getElementById("scrollbox8").style.opacity = 1;
-  } else {
-    document.getElementById("scrollbox8").style.opacity = 0;
-  }
-
-  if (userPosition > 0.9 && userPosition < 0.95) {
-    document.getElementById("scrollbox9").style.opacity = 1;
-  } else {
-    document.getElementById("scrollbox9").style.opacity = 0;
-  }
-
-  if (userPosition > 0.95 && userPosition < 1) {
-    document.getElementById("scrollbox10").style.opacity = 1;
-  } else {
-    document.getElementById("scrollbox10").style.opacity = 0;
   }
 
   // 👀 CAMERA MOVING ON MOUSE MOVEMENT 
