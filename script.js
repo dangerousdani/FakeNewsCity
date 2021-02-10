@@ -7,6 +7,7 @@ import * as THREE from './sources/three.module.js';
 javascript: (function () { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); }; script.src = '//mrdoob.github.io/stats.js/build/stats.min.js'; document.head.appendChild(script); })()
 
 import { FirstPersonControls } from './sources/firstPersonControls.js';
+import { PointerLockControls } from './sources/PointerLockControls.js';
 
 // 🌐 GLOBAL VARIABLES -------------------------- 
 
@@ -39,7 +40,7 @@ window.addEventListener('mousemove', onMouseMove, false);
 function onMouseMove(event) {
   mouse.x = (event.clientX - windowHalf.x);
   mouse.y = (event.clientY - windowHalf.y);
-  // console.log(mouse.x);
+  console.log(mouse.x);
 }
 
 let scrollbox1 = document.getElementById("scrollbox1");
@@ -200,6 +201,8 @@ function render() {
   renderer.render(scene, camera);
 }
 
+controls = new PointerLockControls( camera, renderer.domElement );
+
 // 📊 LOAD JSON DATA ----------------------------------------
 // Do not forget to load the D3 Framework in your HTML file!
 
@@ -298,7 +301,6 @@ class House {
         emissiveMap: this.dynamicTexture.texture,
         //envMap: sunshine,
         shininess: 100,
-        metalness: 1,
         reflectivity: 1
       }),
       new THREE.MeshPhongMaterial({
@@ -308,21 +310,18 @@ class House {
         emissive: emissiveColor,
         emissiveMap: this.dynamicTexture.texture,
         shininess: 100,
-        metalness: 1,
         reflectivity: 1
       }),
       new THREE.MeshPhongMaterial({
         color: this.roofColor, 
         specular: 0xCE9178,
         shininess: 100,
-        metalness: 1,
         reflectivity: 1
       }),
       new THREE.MeshPhongMaterial({
         color: this.roofColor, 
         specular: 0xCE9178,
         shininess: 100,
-        metalness: 1,
         reflectivity: 1
       }),
       new THREE.MeshPhongMaterial({
@@ -332,7 +331,6 @@ class House {
         emissive: emissiveColor, 
         emissiveMap: this.dynamicTexture.texture, 
         shininess: 100, 
-        metalness: 1, 
         reflectivity: 1
       }),
       new THREE.MeshPhongMaterial({
@@ -342,7 +340,6 @@ class House {
         emissive: emissiveColor, 
         emissiveMap: this.dynamicTexture.texture, 
         shininess: 100,
-        metalness: 1,
         reflectivity: 1
       })
     ];
@@ -590,15 +587,17 @@ function update(renderer, scene, camera) {
   // 👀 CAMERA MOVING ON MOUSE MOVEMENT 
 
   // console.log(mouse.x);
-
+  console.log("camera rotation" + camera.rotation.y);
 
   if (mouse.x > 0) {
 
     target.x = (1 - mouse.x) * 0.002;
-    target.y = (1 - mouse.y) * 0.002;
+   // target.y = (1 - mouse.y) * 0.002
+    console.log("target" + target.x);;    
 
     //camera.rotation.x += 0.1 * (target.y - camera.rotation.x); // nach oben
     camera.rotation.y += 0.3 * (target.x - camera.rotation.y); // nach rechts 
+   ;
   }
   else {
     target.x = (1 - mouse.x) * 0.002;
@@ -606,7 +605,11 @@ function update(renderer, scene, camera) {
 
     //camera.rotation.x = 0.5 * (target.y - camera.rotation.x); // nach oben
     camera.rotation.y = 0.3 * (target.x - camera.rotation.y); // nach links 
+    
+
+  
   }
+  console.log(camera rotation "danach" + camera.rotation.y);
   /*
     if (userPosition > 0 && userPosition < 0.4) {
   
