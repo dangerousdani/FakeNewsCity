@@ -54,28 +54,33 @@ camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
 //Camera Path
 //Vector values: (- = nachlinks/+ = nachrechts, - = nach unten/+ = nach oben, - = nach hinten/ + = nach vorne)
+
 const pathCurve = new THREE.CatmullRomCurve3([
   // Froschperspektive
   // Startpunkt
-  new THREE.Vector3(-6, 0.5, 9),
-  //1. Ecke
-  new THREE.Vector3(-6, 0.5, -2), // extra Punkt davor und danach, um die Rundung rauszunehmen
-  new THREE.Vector3(-6, 0.5, -4),
-  new THREE.Vector3(-4, 0.5, -4), // ansonsten wäre die Kurve zu rund und man würde durch Häuser gehen...
-  // 2.Ecke
-  new THREE.Vector3(5, 0.5, -4), // ich frag mich, ob das auch smarter geht...
   new THREE.Vector3(6, 0.5, -4),
-  new THREE.Vector3(6, 0.5, -3),
+  //1. Ecke
+  new THREE.Vector3(-5, 0.5, -4), // extra Punkt davor und danach, um die Rundung rauszunehmen
+  new THREE.Vector3(-6, 0.5, -4),
+  new THREE.Vector3(-6, 0.5, -3), // ansonsten wäre die Kurve zu rund und man würde durch Häuser gehen...
+  // 2.Ecke
+  new THREE.Vector3(-6, 0.5, -1), // ich frag mich, ob das auch smarter geht...
+  new THREE.Vector3(-6, 0.5, 0),
+  new THREE.Vector3(-5, 0.5, 0),
   // 3.Ecke
-  new THREE.Vector3(6, 0.5, 2.5),
-  new THREE.Vector3(6, 0.5, 3.8),
-  new THREE.Vector3(5, 0.5, 3.8),
+  new THREE.Vector3(5, 0.5, 0),
+  new THREE.Vector3(6, 0.5, 0),
+  new THREE.Vector3(6, 0.5, 1),
   // 4.Ecke
+  new THREE.Vector3(6, 0.5, 3),
+  new THREE.Vector3(6, 0.5, 4),
+  new THREE.Vector3(5, 0.5, 4),
+  // 5.Ecke
   new THREE.Vector3(1, 0.5, 3.8),
   new THREE.Vector3(0, 0.5, 3.8),
-  new THREE.Vector3(0, 0.5, 2.8),
+  new THREE.Vector3(0, 0.5, 3.8),
   // Endpunkt: Sackgasse
-  new THREE.Vector3(0, 0.5, 0.5),
+  new THREE.Vector3(0.5, 0.5, 1),
 
   //new THREE.Vector3(4, -10, 5),   // Fahrt nach unten
 
@@ -88,6 +93,7 @@ const pathCurve = new THREE.CatmullRomCurve3([
   //new THREE.Vector3(1, 40, 3),
 ]);
 
+
 const pathPoints = pathCurve.getPoints(50);
 const pathGeometry = new THREE.BufferGeometry().setFromPoints(pathPoints);
 const pathMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 0 });
@@ -98,8 +104,8 @@ let cameraPath = new THREE.Mesh(pathGeometry, pathMaterial);
 var setcolor = 0x96A4B6;
 scene = new THREE.Scene();
 scene.background = new THREE.Color(setcolor);
-scene.fog = new THREE.Fog(setcolor, 5, 16);
-// scene.fog = new THREE.Fog(setcolor, 25, 1000); // damit der Nebel verschwindet 
+// scene.fog = new THREE.Fog(setcolor, 5, 16);
+scene.fog = new THREE.Fog(setcolor, 25, 1000); // damit der Nebel verschwindet 
 
 // 👇 FLOOR ✅ -----------------------
 
@@ -121,31 +127,52 @@ function generateFloor(w, d) {
 }
 scene.add(floor);
 
-// Pedestal
-
-/* const pedestalgeo = new THREE.BoxGeometry(20, 2, 14);
-const pedestalmat = new THREE.MeshPhongMaterial({ color: 'rgb(5,8,12)' });
-let pedestal = new THREE.Mesh(pedestalgeo, pedestalmat);
-pedestal.position.y = -1;
-scene.add(pedestal); */
-
 // 🌞 LIGHT SETTINGS -------------------------- 
 
-const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
-hemiLight.position.set(0, 20, 0);
+const skyColor = 0xffffff;
+const groundColor = 0xffffff; 
+const hemiIntensity = 1;
+const hemiLight = new THREE.HemisphereLight(skyColor, groundColor, hemiIntensity);
+hemiLight.position.set(0, 0, 0);
 scene.add(hemiLight);
+const hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 5);
+// scene.add(hemiLightHelper);
 
-const dirLight = new THREE.DirectionalLight(0xffffff);
-dirLight.position.set(- 3, 10, - 10);
+const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+pointLight.position.set(2, 2, 2);
+pointLight.shadow.radius = 8;
+pointLight.position.multiplyScalar(1);
+scene.add(pointLight);
+
+const pointLightHelper = new THREE.PointLightHelper(pointLight);
+scene.add(pointLightHelper);
+
+const dirColor = 0xffffff;
+const dirIntensity = 1;
+const dirLight = new THREE.DirectionalLight(dirColor, dirIntensity);
+dirLight.position.set(-10, 20, -10); // Startposition des Lichts 
+dirLight.target.position.set(0, 0, 0); // Endposition des Lichts 
 dirLight.castShadow = true;
-dirLight.shadowDarkness = 1;
-dirLight.shadow.camera.top = 5;
-dirLight.shadow.camera.bottom = - 5;
-dirLight.shadow.camera.left = - 5;
-dirLight.shadow.camera.right = 5;
+dirLight.shadow = new THREE.LightShadow(new THREE.PerspectiveCamera(100, 1, 500, 1000));
+dirLight.shadow.bias = 0.0001;
+dirLight.shadow.camera.top = 500;
+dirLight.shadow.camera.bottom = - 500;
+dirLight.shadow.camera.left = - 500;
+dirLight.shadow.camera.right = 500;
 dirLight.shadow.camera.near = 0.1;
-dirLight.shadow.camera.far = 40;
+dirLight.shadow.camera.far = 500;
+dirLight.shadow.mapSize.width = 2048;
+dirLight.shadow.mapSize.height = 2048;
+dirLight.position.multiplyScalar(5); // Licht multiplizieren, um Schatten weicher zu machen 
 scene.add(dirLight);
+scene.add(dirLight.target);
+
+// wenn jemals der Schatten funktioniert, können wir es damit dimmen
+
+const ambiColor = 0x404040;
+const ambiIntensity = 0.2;
+const ambiLight = new THREE.AmbientLight(ambiColor, ambiIntensity);
+scene.add(ambiLight);
 
 // 🎛 RENDER SETTINGS -------------------------- 
 
@@ -215,7 +242,7 @@ function init(data) {
   controls.movementSpeed = 1000;
   controls.lookSpeed = 0.1; 
 
-  helper(); // Koordinatensystem  
+  //helper(); // Koordinatensystem  
 }
 
 // 🎯 CLASS FOR SINGLE HOUSE -------------------------- 
@@ -267,27 +294,31 @@ class House {
     if (colorProbability < 0.5) {
       this.roofColor = "rgb(255,255,255)";
     }
-    // emissiveMap: new THREE.Texture
+
+    const textureLoader = new THREE.TextureLoader();
+    //const sunshine = textureLoader.load("./sources/drivin_school_8k.hdr");
+    
     this.material = [
-      new THREE.MeshLambertMaterial({ 
+      new THREE.MeshPhongMaterial({ 
         color: buildingColor,
         emissiveIntensity: 1,
         emissive: emissiveColor,
         emissiveMap: this.dynamicTexture.texture,
+        //envMap: sunshine,
         shininess: 1,
         reflectivity: 100
       }),
-      new THREE.MeshLambertMaterial({ 
+      new THREE.MeshPhongMaterial({ 
         color: buildingColor,
         emissiveIntensity: 1,
         emissive: emissiveColor,
         emissiveMap: this.dynamicTexture.texture,
         reflectivity: 10,
       }),
-      new THREE.MeshLambertMaterial({ color: this.roofColor }),
-      new THREE.MeshLambertMaterial({ color: this.roofColor }),
-      new THREE.MeshLambertMaterial({ color: buildingColor, emissiveIntensity: 1, emissive: emissiveColor, emissiveMap: this.dynamicTexture.texture,}),
-      new THREE.MeshLambertMaterial({ color: buildingColor, emissiveIntensity: 1, emissive: emissiveColor, emissiveMap: this.dynamicTexture.texture })
+      new THREE.MeshPhongMaterial({ color: this.roofColor }),
+      new THREE.MeshPhongMaterial({ color: this.roofColor }),
+      new THREE.MeshPhongMaterial({ color: buildingColor, emissiveIntensity: 1, emissive: emissiveColor, emissiveMap: this.dynamicTexture.texture,}),
+      new THREE.MeshPhongMaterial({ color: buildingColor, emissiveIntensity: 1, emissive: emissiveColor, emissiveMap: this.dynamicTexture.texture })
     ];
 
     this.mesh = new THREE.Mesh(this.geometry, this.material);
@@ -384,7 +415,7 @@ class House {
   */
 }
 
-// 🎯 CLASS FOR PLATFORM -------------------------- 
+// 🎯 CLASS FOR PLATFORM / Bürgersteig -------------------------- 
 
 class Platform {
 
@@ -482,8 +513,8 @@ function update(renderer, scene, camera) {
   userSpeed = userSpeed * 0.8;
   userPosition = userPosition + userSpeed;
   //console.log(userPosition);
-  if (userPosition >= 0 && userPosition < 0.375) {
-    camera.lookAt(pathCurve.getPointAt(userPosition + 0.01));
+  if (userPosition >= 0 && userPosition < 0.41) {
+    camera.lookAt(pathCurve.getPointAt(userPosition + 0.02));
   } else {
     camera.lookAt(0, 8, 0);
   }
