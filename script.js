@@ -34,6 +34,14 @@ window.addEventListener('wheel', function (wheelEvent) {
 
 window.addEventListener('mousemove', onMouseMove, false);
 
+// CALCULATES MOUSE POSITION 
+
+function onMouseMove(event) {
+  mouse.x = (event.clientX - windowHalf.x);
+  mouse.y = (event.clientY - windowHalf.y);
+  // console.log(mouse.x);
+}
+
 let scrollbox1 = document.getElementById("scrollbox1");
 let scrollbox2 = document.getElementById("scrollbox2");
 let scrollbox3 = document.getElementById("scrollbox3");
@@ -104,8 +112,8 @@ let cameraPath = new THREE.Mesh(pathGeometry, pathMaterial);
 var setcolor = 0x96A4B6;
 scene = new THREE.Scene();
 scene.background = new THREE.Color(setcolor);
-// scene.fog = new THREE.Fog(setcolor, 5, 16);
-scene.fog = new THREE.Fog(setcolor, 25, 1000); // damit der Nebel verschwindet 
+scene.fog = new THREE.Fog(setcolor, 5, 16);
+//scene.fog = new THREE.Fog(setcolor, 25, 1000); // damit der Nebel verschwindet 
 
 // 👇 FLOOR ✅ -----------------------
 
@@ -114,6 +122,7 @@ floor.position.x = -4;
 floor.name = 'floor';
 floor.rotation.x = Math.PI / 2;
 floor.receiveShadow = true;
+floor.castShadow = false;
 
 function generateFloor(w, d) {
   var geo = new THREE.PlaneBufferGeometry(w, d);
@@ -122,7 +131,7 @@ function generateFloor(w, d) {
     side: THREE.DoubleSide
   });
   var mesh = new THREE.Mesh(geo, mat);
-  mesh.receiveShadow = true;
+  geo.receiveShadow = true;
   return mesh;
 }
 scene.add(floor);
@@ -130,25 +139,14 @@ scene.add(floor);
 // 🌞 LIGHT SETTINGS -------------------------- 
 
 const skyColor = 0xffffff;
-const groundColor = 0xffffff; 
+const groundColor = 0xffffff;
 const hemiIntensity = 1;
 const hemiLight = new THREE.HemisphereLight(skyColor, groundColor, hemiIntensity);
 hemiLight.position.set(0, 0, 0);
 scene.add(hemiLight);
-const hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 5);
-// scene.add(hemiLightHelper);
-
-const pointLight = new THREE.PointLight(0xffffff, 1, 100);
-pointLight.position.set(2, 2, 2);
-pointLight.shadow.radius = 8;
-pointLight.position.multiplyScalar(1);
-scene.add(pointLight);
-
-const pointLightHelper = new THREE.PointLightHelper(pointLight);
-scene.add(pointLightHelper);
 
 const dirColor = 0xffffff;
-const dirIntensity = 1;
+const dirIntensity = 1.75;
 const dirLight = new THREE.DirectionalLight(dirColor, dirIntensity);
 dirLight.position.set(-10, 20, -10); // Startposition des Lichts 
 dirLight.target.position.set(0, 0, 0); // Endposition des Lichts 
@@ -167,10 +165,13 @@ dirLight.position.multiplyScalar(5); // Licht multiplizieren, um Schatten weiche
 scene.add(dirLight);
 scene.add(dirLight.target);
 
-// wenn jemals der Schatten funktioniert, können wir es damit dimmen
+var pointLight = new THREE.PointLight(0xCE9178, 2.0, 600); // < das ist das wichtige Licht
+scene.add(pointLight);
+const pointLightHelper = new THREE.PointLightHelper(pointLight);
+// scene.add(pointLightHelper); 
 
 const ambiColor = 0x404040;
-const ambiIntensity = 0.2;
+const ambiIntensity = 1;
 const ambiLight = new THREE.AmbientLight(ambiColor, ambiIntensity);
 scene.add(ambiLight);
 
@@ -186,14 +187,6 @@ renderer.shadowMapSoft = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setClearColor('rgb(30,30,30)');
 document.body.appendChild(renderer.domElement);
-
-// CALCULATES MOUSE POSITION 
-
-function onMouseMove(event) {
-  mouse.x = (event.clientX - windowHalf.x);
-  mouse.y = (event.clientY - windowHalf.x);
-  // console.log(mouse.x);
-}
 
 function animate() {
 
@@ -240,16 +233,16 @@ function init(data) {
 
   controls = new FirstPersonControls(camera, renderer.domElement);
   controls.movementSpeed = 1000;
-  controls.lookSpeed = 0.1; 
+  controls.lookSpeed = 0.1;
 
-  //helper(); // Koordinatensystem  
+  // helper(); // Koordinatensystem  
 }
 
 // 🎯 CLASS FOR SINGLE HOUSE -------------------------- 
 
 class House {
 
-  constructor(_xPos, _yPos, _zPos, _height, _tweetString, _fixedBoxSizeY, _roofColor, _neueZahl) {
+  constructor(_xPos, _yPos, _zPos, _height, _tweetString, _fixedBoxSizeY, _roofColor) {
     this.xPos = _xPos;
     this.yPos = _yPos;
     this.zPos = _zPos;
@@ -272,7 +265,7 @@ class House {
       lineHeight: 0.1 / this.height,
       emissive: 1,
       //transparent: true, 
-      blending: THREE.AdditiveBlending, 
+      blending: THREE.AdditiveBlending,
       fillStyle: "white",//"rgba(62,57,60,0.9)",//'white',
       font: "24px Helvetica",
       marginTop: ((this.height - this.fixedBoxSizeY + 1) / this.height) // da fixedBoxSize noch zu hoch ist.
@@ -297,36 +290,66 @@ class House {
 
     const textureLoader = new THREE.TextureLoader();
     //const sunshine = textureLoader.load("./sources/drivin_school_8k.hdr");
-    
+
     this.material = [
-      new THREE.MeshPhongMaterial({ 
+      new THREE.MeshPhongMaterial({
         color: buildingColor,
         emissiveIntensity: 1,
         emissive: emissiveColor,
         emissiveMap: this.dynamicTexture.texture,
         //envMap: sunshine,
-        shininess: 1,
-        reflectivity: 100
+        shininess: 100,
+        metalness: 1,
+        reflectivity: 1
       }),
-      new THREE.MeshPhongMaterial({ 
+      new THREE.MeshPhongMaterial({
         color: buildingColor,
         emissiveIntensity: 1,
         emissive: emissiveColor,
         emissiveMap: this.dynamicTexture.texture,
-        reflectivity: 10,
+        shininess: 100,
+        metalness: 1,
+        reflectivity: 1
       }),
-      new THREE.MeshPhongMaterial({ color: this.roofColor }),
-      new THREE.MeshPhongMaterial({ color: this.roofColor }),
-      new THREE.MeshPhongMaterial({ color: buildingColor, emissiveIntensity: 1, emissive: emissiveColor, emissiveMap: this.dynamicTexture.texture,}),
-      new THREE.MeshPhongMaterial({ color: buildingColor, emissiveIntensity: 1, emissive: emissiveColor, emissiveMap: this.dynamicTexture.texture })
+      new THREE.MeshPhongMaterial({
+        color: this.roofColor, 
+        shininess: 100,
+        metalness: 1,
+        reflectivity: 1
+      }),
+      new THREE.MeshPhongMaterial({
+        color: this.roofColor, 
+        shininess: 100,
+        metalness: 1,
+        reflectivity: 1
+      }),
+      new THREE.MeshPhongMaterial({
+        color: buildingColor, 
+        emissiveIntensity: 1, 
+        emissive: emissiveColor, 
+        emissiveMap: this.dynamicTexture.texture, 
+        shininess: 100, 
+        metalness: 1, 
+        reflectivity: 1
+      }),
+      new THREE.MeshPhongMaterial({
+        color: buildingColor, 
+        emissiveIntensity: 1, 
+        emissive: emissiveColor, 
+        emissiveMap: this.dynamicTexture.texture, 
+        shininess: 100,
+        metalness: 1,
+        reflectivity: 1
+      })
     ];
 
     this.mesh = new THREE.Mesh(this.geometry, this.material);
 
-    this.geometry.castShadow = true;
-    this.geometry.receiveShadow = true;
+    this.mesh.castShadow = true;
+    this.mesh.receiveShadow = true;
 
-    // console.log('blöder shadow ' + this.geometry.castShadow);
+    this.geometry.computeFaceNormals();
+    this.geometry.computeVertexNormals();
 
     this.mesh.position.x = this.xPos + this.width / 2;
     this.mesh.position.y = this.yPos + this.height / 2;
@@ -434,6 +457,9 @@ class Platform {
     this.material = new THREE.MeshPhongMaterial({ color: "rgb(10,16,24)" });
     this.mesh = new THREE.Mesh(this.geometry, this.material);
 
+    this.mesh.castShadow = true;
+    this.mesh.receiveShadow = true;
+
     this.mesh.position.x = (this.xPos + this.width / 2) - 0.3;
     this.mesh.position.y = this.yPos + this.height / 2;
     this.mesh.position.z = (this.zPos + this.depth / 2) - 0.3;
@@ -514,7 +540,7 @@ function update(renderer, scene, camera) {
   userPosition = userPosition + userSpeed;
   //console.log(userPosition);
   if (userPosition >= 0 && userPosition < 0.41) {
-    camera.lookAt(pathCurve.getPointAt(userPosition + 0.02));
+    camera.lookAt(pathCurve.getPointAt(userPosition + 0.01));
   } else {
     camera.lookAt(0, 8, 0);
   }
@@ -560,31 +586,41 @@ function update(renderer, scene, camera) {
   // 👀 CAMERA MOVING ON MOUSE MOVEMENT 
 
   // console.log(mouse.x);
-  /*
+
+
   if (mouse.x > 0) {
-      target.x = (1 - mouse.x) * 0.002;
-      target.y = (1 - mouse.y) * 0.002;
-  
-      camera.rotation.x += 0.1 * (target.y - camera.rotation.x); // nach oben
-      camera.rotation.y += 0.3 * (target.x - camera.rotation.y); // nach rechts 
-   }    
-      else {
-      target.x = (1 - mouse.x) * 0.002;
-      target.y = (1 - mouse.y) * 0.002;
-  
-      camera.rotation.x = 0.5 * (target.y - camera.rotation.x); // nach oben
-      camera.rotation.y = 0.3 * (target.x - camera.rotation.y); // nach links 
-      }*/
 
-  if (userPosition > 0 && userPosition < 0.4) {
+    target.x = (1 - mouse.x) * 0.002;
+    target.y = (1 - mouse.y) * 0.002;
 
-    target.x = (mouse.x) * 0.002;
-    //target.y = (1 - mouse.y) * 0.02;
-    //camera.rotation.x += 0.5 * (target.y - camera.rotation.x); // nach oben
-    camera.rotation.y += -(target.x - mouse.x) * 0.0002; // nach rechts 
-  } else {
-    camera.rotation.y = 0;
+    //camera.rotation.x += 0.1 * (target.y - camera.rotation.x); // nach oben
+    camera.rotation.y += 0.3 * (target.x - camera.rotation.y); // nach rechts 
   }
+  else {
+    target.x = (1 - mouse.x) * 0.002;
+    target.y = (1 - mouse.y) * 0.002;
+
+    //camera.rotation.x = 0.5 * (target.y - camera.rotation.x); // nach oben
+    camera.rotation.y = 0.3 * (target.x - camera.rotation.y); // nach links 
+  }
+  /*
+    if (userPosition > 0 && userPosition < 0.4) {
+  
+      //let x = (vector.x + 1) * width / 2;
+      //let y = - (vector.y - 1) * height / 2;
+      //const vector = new THREE.Vector2(x, y).project(camera);
+      //vector.project( camera );
+      //vector.x = ( vector.x + 1) * width / 2;
+      //vector.y = - ( vector.y - 1) * height / 2;
+      //vector.z = 0; 
+  
+      target.x = (mouse.x) * 0.002;
+      //target.y = (1 - mouse.y) * 0.02;
+      //camera.rotation.x += 0.5 * (target.y - camera.rotation.x); // nach oben
+      camera.rotation.y += -(target.x - mouse.x) * 0.0002; // nach rechts 
+    } else {
+      camera.rotation.y = 0;
+    }*/
   // console.log(camera.rotation.y)
 
   requestAnimationFrame(function () {
