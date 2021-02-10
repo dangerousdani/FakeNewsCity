@@ -165,10 +165,8 @@ dirLight.position.multiplyScalar(5); // Licht multiplizieren, um Schatten weiche
 scene.add(dirLight);
 scene.add(dirLight.target);
 
-var pointLight = new THREE.PointLight(0xCE9178, 2.0, 600); // < das ist das wichtige Licht
-scene.add(pointLight);
-const pointLightHelper = new THREE.PointLightHelper(pointLight);
-// scene.add(pointLightHelper); 
+var pointLight = new THREE.PointLight(0xCE9178, 2.0, 600); 
+scene.add(pointLight); 
 
 const ambiColor = 0x404040;
 const ambiIntensity = 1;
@@ -260,7 +258,7 @@ class House {
 
     this.dynamicTexture.clear('rgb(29,41,81)')
     this.dynamicTexture.drawTextCooked({
-      background: "black", //der hintergrund muss schwarz zeit damit die emissiveMap (als Maske) funktioniert
+      background: "black", // der Hintergrund muss schwarz sein, damit die emissiveMap (als Maske) funktioniert
       text: this.tweetString,
       lineHeight: 0.1 / this.height,
       emissive: 1,
@@ -281,7 +279,7 @@ class House {
     this.roofColor = "rgb(0,0,0)";
     let emissiveColor = "rgb(255,255,255)";
 
-    // Die Dächer der Häuser sollen zu 10% weiß und 90% schwarz sein und das durch eine zufällige Anordnung
+    // die Dächer der Häuser sollen zu 10% weiß und 90% schwarz sein und das durch eine zufällige Anordnung
     let colorProbability = Math.random();
 
     if (colorProbability < 0.5) {
@@ -294,6 +292,7 @@ class House {
     this.material = [
       new THREE.MeshPhongMaterial({
         color: buildingColor,
+        specular: 0xCE9178,
         emissiveIntensity: 1,
         emissive: emissiveColor,
         emissiveMap: this.dynamicTexture.texture,
@@ -304,6 +303,7 @@ class House {
       }),
       new THREE.MeshPhongMaterial({
         color: buildingColor,
+        specular: 0xCE9178,
         emissiveIntensity: 1,
         emissive: emissiveColor,
         emissiveMap: this.dynamicTexture.texture,
@@ -313,18 +313,21 @@ class House {
       }),
       new THREE.MeshPhongMaterial({
         color: this.roofColor, 
+        specular: 0xCE9178,
         shininess: 100,
         metalness: 1,
         reflectivity: 1
       }),
       new THREE.MeshPhongMaterial({
         color: this.roofColor, 
+        specular: 0xCE9178,
         shininess: 100,
         metalness: 1,
         reflectivity: 1
       }),
       new THREE.MeshPhongMaterial({
         color: buildingColor, 
+        specular: 0xCE9178,
         emissiveIntensity: 1, 
         emissive: emissiveColor, 
         emissiveMap: this.dynamicTexture.texture, 
@@ -334,6 +337,7 @@ class House {
       }),
       new THREE.MeshPhongMaterial({
         color: buildingColor, 
+        specular: 0xCE9178,
         emissiveIntensity: 1, 
         emissive: emissiveColor, 
         emissiveMap: this.dynamicTexture.texture, 
@@ -363,14 +367,14 @@ class House {
     let growingSpeed = 0.008;
     let roofColor = this.roofColor;
 
-    //Die weißen Häuser sollen langsamer als die schwarzen Häuser wachsen
+    // die weißen Häuser sollen langsamer als die schwarzen Häuser wachsen
     if (roofColor == "rgb(255,255,255)") {
       growingSpeed = 0.002;
     } else {
       growingSpeed = 0.008;
     }
 
-    //Die Häuser sollen nur beim Perspektivenwechseln wachsen
+    // die Häuser sollen nur beim Perspektivenwechseln wachsen
     if (userPosition > 0.4 && userPosition < 0.8) {
       this.mesh.scale.y += Math.random() * growingSpeed;
     } else {
