@@ -143,17 +143,18 @@ THREEx.DynamicTexture.prototype.drawTextCooked = function(options){
 			maxText	+= text.substr(maxText.length, 1)
 		}
 
-    //
+    // LINE BREAKS 
+    
     var words = maxText.split(' ');
     console.log("wordArrays: " + words.length);
 
     if(words.length > 1){
       var lastWord = words[words.length-1]; 
-      console.log("last word: " + lastWord);
+      // console.log("last word: " + lastWord);
       var remainingLetters = maxText.length - lastWord.length;
-      console.log("remainingLetters " + remainingLetters);
+      // console.log("remainingLetters " + remainingLetters);
       var maxTextReduced = maxText.substr(0, remainingLetters);
-      console.log("maxTextReduced " + maxTextReduced);
+      // console.log("maxTextReduced " + maxTextReduced);
 
       return maxTextReduced;
     }
