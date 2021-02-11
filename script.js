@@ -37,8 +37,8 @@ window.addEventListener('mousemove', onMouseMove, false);
 // CALCULATES MOUSE POSITION 
 
 function onMouseMove(event) {
-  mouse.x = (event.clientX - windowHalf.x)/windowHalf.x;
-  mouse.y = (event.clientY - windowHalf.y)/windowHalf.y;
+  mouse.x = (event.clientX - windowHalf.x) / windowHalf.x;
+  mouse.y = (event.clientY - windowHalf.y) / windowHalf.y;
 }
 
 let scrollbox1 = document.getElementById("scrollbox1");
@@ -107,10 +107,14 @@ let cameraPath = new THREE.Mesh(pathGeometry, pathMaterial);
 
 // 🌇 SCENE SETTING -------------------------- 
 
+let fogNear = 5;
+let fogFar = 2;
 var setcolor = 0x96A4B6;
 scene = new THREE.Scene();
 scene.background = new THREE.Color(setcolor);
-scene.fog = new THREE.Fog(setcolor, 5, 16);
+// scene.fog = new THREE.Fog(setcolor, fogNear, fogFar);
+let fogDensity = 0.2;
+// scene.fog = new THREE.FogExp2(setcolor, fogDensity);
 //scene.fog = new THREE.Fog(setcolor, 25, 1000); // damit der Nebel verschwindet 
 
 // 👇 FLOOR ✅ -----------------------
@@ -163,8 +167,8 @@ dirLight.position.multiplyScalar(5); // Licht multiplizieren, um Schatten weiche
 scene.add(dirLight);
 scene.add(dirLight.target);
 
-var pointLight = new THREE.PointLight(0xCE9178, 2.0, 600); 
-scene.add(pointLight); 
+var pointLight = new THREE.PointLight(0xCE9178, 2.0, 600);
+scene.add(pointLight);
 
 const ambiColor = 0x404040;
 const ambiIntensity = 1;
@@ -248,9 +252,9 @@ class House {
     this.width = 1;
     this.depth = 1;
 
-    // this.tweetString = this.lineBreak(22, _tweetString);
+    this.tweetString = this.lineBreak(22, _tweetString);
     // console.log(this.lineBreak(28, _tweetString));
-    this.tweetString = _tweetString;
+    // this.tweetString = _tweetString;
 
     this.dynamicTexture = new THREEx.DynamicTexture(400, 400 * this.height)
 
@@ -296,7 +300,6 @@ class House {
         emissiveMap: this.dynamicTexture.texture,
         //envMap: sunshine,
         shininess: 100,
-        metalness: 1,
         reflectivity: 1
       }),
       new THREE.MeshPhongMaterial({
@@ -306,41 +309,36 @@ class House {
         emissive: emissiveColor,
         emissiveMap: this.dynamicTexture.texture,
         shininess: 100,
-        metalness: 1,
         reflectivity: 1
       }),
       new THREE.MeshPhongMaterial({
-        color: this.roofColor, 
+        color: this.roofColor,
         specular: 0xCE9178,
         shininess: 100,
-        metalness: 1,
         reflectivity: 1
       }),
       new THREE.MeshPhongMaterial({
-        color: this.roofColor, 
+        color: this.roofColor,
         specular: 0xCE9178,
         shininess: 100,
-        metalness: 1,
         reflectivity: 1
       }),
       new THREE.MeshPhongMaterial({
-        color: buildingColor, 
+        color: buildingColor,
         specular: 0xCE9178,
-        emissiveIntensity: 1, 
-        emissive: emissiveColor, 
-        emissiveMap: this.dynamicTexture.texture, 
-        shininess: 100, 
-        metalness: 1, 
-        reflectivity: 1
-      }),
-      new THREE.MeshPhongMaterial({
-        color: buildingColor, 
-        specular: 0xCE9178,
-        emissiveIntensity: 1, 
-        emissive: emissiveColor, 
-        emissiveMap: this.dynamicTexture.texture, 
+        emissiveIntensity: 1,
+        emissive: emissiveColor,
+        emissiveMap: this.dynamicTexture.texture,
         shininess: 100,
-        metalness: 1,
+        reflectivity: 1
+      }),
+      new THREE.MeshPhongMaterial({
+        color: buildingColor,
+        specular: 0xCE9178,
+        emissiveIntensity: 1,
+        emissive: emissiveColor,
+        emissiveMap: this.dynamicTexture.texture,
+        shininess: 100,
         reflectivity: 1
       })
     ];
@@ -366,6 +364,7 @@ class House {
     let roofColor = this.roofColor;
 
     // die weißen Häuser sollen langsamer als die schwarzen Häuser wachsen
+
     if (roofColor == "rgb(255,255,255)") {
       growingSpeed = 0.002;
     } else {
@@ -373,16 +372,19 @@ class House {
     }
 
     // die Häuser sollen nur beim Perspektivenwechseln wachsen
-    if (userPosition > 0.4 && userPosition < 0.8) {
+
+    if (userPosition > 0.4 && userPosition < 0.7) {
       this.mesh.scale.y += Math.random() * growingSpeed;
-    } else {
+    } else if (userPosition >= 0 && userPosition < 0.4) {
+      this.mesh.scale.y = this.mesh.scale.y;
+    } else if (userPosition >= 0.7 && userPosition < 1) {
       this.mesh.scale.y = this.mesh.scale.y;
     }
 
   }
 
   // ADDING LINE BREAKS 
-  /*
+  
     lineBreak(linebreakat, text) {
   
       let spaceMemory = 0; // wie viele Spaces zusätzlich gemacht wurden
@@ -437,7 +439,7 @@ class House {
       }
       return stringwithbreaks.join('');
     }
-  */
+  
 }
 
 // 🎯 CLASS FOR PLATFORM / Bürgersteig -------------------------- 
@@ -589,18 +591,27 @@ function update(renderer, scene, camera) {
 
   if (userPosition > 0 && userPosition < 0.4) {
 
-    target.x = mouse.x * Math.PI/40; //target = maximale Gradzahl der Abweichung nach recht o links
+    target.x = mouse.x * Math.PI / 40; //target = maximale Gradzahl der Abweichung nach recht o links
     //target.y = mouse.x * Math.PI/3;
 
-    camera.applyQuaternion(new THREE.Quaternion(0,1,0,target.x)) ;
-    camera.applyQuaternion(new THREE.Quaternion(0,1,0,1)) ;
-    camera.applyQuaternion(new THREE.Quaternion(0,1,0,-1)) ;
+    camera.applyQuaternion(new THREE.Quaternion(0, 1, 0, target.x));
+    camera.applyQuaternion(new THREE.Quaternion(0, 1, 0, 1));
+    camera.applyQuaternion(new THREE.Quaternion(0, 1, 0, -1));
 
-    camera.applyQuaternion(new THREE.Quaternion(0,1,0, target.x)) ;
+    camera.applyQuaternion(new THREE.Quaternion(0, 1, 0, target.x));
     camera.quaternion.normalize();
   } else {
     camera.rotation.y = 0;
   }
+
+  if (userPosition >= 0 && userPosition < 0.4 && fogDensity > 0.05) {
+     scene.fog = new THREE.FogExp2(setcolor, fogDensity);
+    console.log("WIRST DU WENIGER??? " + fogDensity);
+  } else if (userPosition >= 0.4 && userPosition < 0.9 && fogDensity > 0.06) { 
+    scene.fog = new THREE.FogExp2(setcolor, fogDensity);
+    fogDensity -= 0.001;
+    console.log("was soll das " + fogDensity);
+  } 
 
   requestAnimationFrame(function () {
     update(renderer, scene, camera);
