@@ -252,8 +252,6 @@ class House {
     this.width = 1;
     this.depth = 1;
 
-    // this.tweetString = this.lineBreak(22, _tweetString);
-    // console.log(this.lineBreak(28, _tweetString));
     this.tweetString = _tweetString;
 
     this.dynamicTexture = new THREEx.DynamicTexture(400, 400 * this.height)
@@ -382,64 +380,6 @@ class House {
     }
 
   }
-/*
-  // ADDING LINE BREAKS 
-  
-    lineBreak(linebreakat, text) {
-  
-      let spaceMemory = 0; // wie viele Spaces zusätzlich gemacht wurden
-      let stringwithbreaks = [];
-      let currentPosition = 0;
-      let backspace = linebreakat;
-      let spacer = 0; // extra Spaces a
-  
-      for (var line = 0; line < 10; line++) {
-        while (true) {
-          if (currentPosition + backspace >= text.length) {
-            for (var i = 0; i < backspace; i++) {
-              stringwithbreaks.push(text[i + currentPosition])
-            }
-            return stringwithbreaks.join("");
-          }
-          if (backspace == 0) {
-            for (var i = 0; i < linebreakat; i++) {
-              stringwithbreaks.push(text[i + currentPosition])
-            }
-            currentPosition = stringwithbreaks.length - spaceMemory;
-            backspace = linebreakat;
-            break
-          }
-          if (text.charAt(backspace + currentPosition) == " ") {
-  
-            for (var i = 0; i < backspace; i++) {
-              stringwithbreaks.push(text[i + currentPosition])
-            }
-            stringwithbreaks.push("ä");
-            currentPosition = stringwithbreaks.length - spaceMemory;
-            backspace = linebreakat;
-            break
-          } else {
-            backspace--;
-          }
-        }
-        for (var i = 0; i < stringwithbreaks.length; i++) {
-          if (stringwithbreaks[i] == 'ä') {
-            stringwithbreaks[i] = ' ';
-            for (var j = 0; j < linebreakat - (i % linebreakat); j++) {
-              spaceMemory++;
-              stringwithbreaks.push(' ');
-            }
-          }
-        }
-        for (var i = 0; i < spacer; i++){
-          spaceMemory++
-          stringwithbreaks.push(' ');
-        }
-        spacer++;
-      }
-      return stringwithbreaks.join('');
-    }
-  */
 }
 
 // 🎯 CLASS FOR PLATFORM / Bürgersteig -------------------------- 
@@ -590,15 +530,17 @@ function update(renderer, scene, camera) {
   // 👀 CAMERA MOVING ON MOUSE MOVEMENT 
 
   if (userPosition > 0 && userPosition < 0.4) {
+    //target.x = maximale Gradzahl der Abweichung nach rechts o. links in Porzent der Mausbewegung
+    //Mouse.x hat einen Wert zwischen -1 bis 1. Bsp. mouse.x = 0.5 d.h. 50% der maximalen Gradzahl werden geschwenkt.
+    //bei mouse.x = 1 (das ist wenn die Maus ganz links am Rand ist) heißt es 100% der Gradzahl werden geschwenkt.
+    //der letzte Wert bedeutet wie viel Porzent einer Drehung. Dabei ist 1 eine 180 grad Drehung, 0.5 eine 90 Grad drehung. 0.1 eine 18 Grad Drehung.
 
-    target.x = mouse.x * Math.PI / 40; //target = maximale Gradzahl der Abweichung nach recht o links
-    //target.y = mouse.x * Math.PI/3;
+    target.x = mouse.x * Math.PI / 20; //target = maximale Gradzahl der Abweichung nach recht o links
+    //target.y = mouse.y * Math.PI / 40; 
 
-    camera.applyQuaternion(new THREE.Quaternion(0, 1, 0, target.x));
-    camera.applyQuaternion(new THREE.Quaternion(0, 1, 0, 1));
-    camera.applyQuaternion(new THREE.Quaternion(0, 1, 0, -1));
+    camera.applyQuaternion(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), -target.x));
+    //camera.applyQuaternion(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), -target.y));
 
-    camera.applyQuaternion(new THREE.Quaternion(0, 1, 0, target.x));
     camera.quaternion.normalize();
   } else {
     camera.rotation.y = 0;

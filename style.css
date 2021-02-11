@@ -14,9 +14,15 @@ body {
     font-size: 40px;
   }
   
+  .glow {
+  color: #293645;
+  text-align: center;
+  text-shadow: 0 0 10px #293645, 0 0 5px #293645;
+}
+  
   p {
     font-family: Arial, Helvetica, sans-serif;;
-    font-size: 20px;
+    font-size: 40px;
   }
 
   .button-new {
@@ -61,7 +67,7 @@ body {
     position: absolute;
     top: 0px;
     padding: 50px;
-    color: white;
+    color: #293645;
     text-align: center;
   }
 
