@@ -92,7 +92,7 @@ const pathCurve = new THREE.CatmullRomCurve3([
   //new THREE.Vector3(4, -10, 5),   // Fahrt nach unten
 
   // Wechsel in die Zwischenstufe
-  new THREE.Vector3(0.5, 4, 0.5),
+  new THREE.Vector3(1, 4, 15),
   // Wechsel in die Vogelperspektive
   new THREE.Vector3(0, 20, 0),
   new THREE.Vector3(0, 30, 0),
@@ -107,7 +107,7 @@ let cameraPath = new THREE.Mesh(pathGeometry, pathMaterial);
 // 🌇 SCENE SETTING -------------------------- 
 
 let fogNear = 5;
-let fogFar = 2;
+let fogFar = 15;
 var setcolor = 0x96A4B6;
 scene = new THREE.Scene();
 scene.background = new THREE.Color(setcolor);
@@ -167,7 +167,20 @@ scene.add(dirLight);
 scene.add(dirLight.target);
 
 var pointLight = new THREE.PointLight(0xCE9178, 2.0, 600);
+pointLight.position.set = (4.5,3,3)
 scene.add(pointLight);
+
+var pointLight2 = new THREE.PointLight(0xCE9178, 2.0, 600);
+pointLight2.position.set = (4.5,3,-3)
+scene.add(pointLight2);
+
+var pointLight3 = new THREE.PointLight(0xCE9178, 2.0, 600);
+pointLight3.position.set = (-4.5,3,-3)
+scene.add(pointLight3);
+
+var pointLight4 = new THREE.PointLight(0xCE9178, 2.0, 600);
+pointLight4.position.set = (-4.5,3,3)
+scene.add(pointLight4);
 
 const ambiColor = 0x404040;
 const ambiIntensity = 1;
@@ -264,7 +277,7 @@ class House {
       //transparent: true, 
       blending: THREE.AdditiveBlending,
       fillStyle: "white",//"rgba(62,57,60,0.9)",//'white',
-      font: "24px Helvetica Neue",
+      font: "24px Helvetica",
       marginTop: ((this.height - this.fixedBoxSizeY + 1) / this.height) // da fixedBoxSize noch zu hoch ist.
     })
 
@@ -275,7 +288,7 @@ class House {
     // COLORS OF THE ROOF AND BUILDING
 
     let buildingColor = "rgb(27,30,43)";
-    this.roofColor = "rgb(0,0,0)";
+    this.roofColor = "rgb(0,3,5)";
     let emissiveColor = "rgb(255,255,255)";
 
     // die Dächer der Häuser sollen zu 10% weiß und 90% schwarz sein und das durch eine zufällige Anordnung
@@ -477,14 +490,14 @@ function generate_city(tweets, roof) {
 
 // Rezise Site ----------------------- 
 
-window.addEventListener( 'resize', onWindowResize, false );
+window.addEventListener('resize', onWindowResize, false);
 
-function onWindowResize(){
+function onWindowResize() {
 
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
 
-    renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setSize(window.innerWidth, window.innerHeight);
 
 }
 
@@ -492,6 +505,15 @@ function onWindowResize(){
 
 function update(renderer, scene, camera) {
 
+  if (userPosition >= 0 && userPosition < 0.4 && fogDensity > 0.05) {
+    scene.fog = new THREE.FogExp2(setcolor, fogDensity);
+    // console.log("WIRST DU WENIGER??? " + fogDensity);
+  } else if (userPosition >= 0.4 && userPosition < 1 && fogDensity > 0.06) {
+    scene.fog = new THREE.FogExp2(setcolor, fogDensity);
+    fogDensity -= 0.001;
+    // console.log("was soll das " + fogDensity);
+  }
+  
   userSpeed = userSpeed * 0.8;
   userPosition = userPosition + userSpeed;
 
@@ -502,17 +524,21 @@ function update(renderer, scene, camera) {
     userPosition = 1;
   }
 
-  document.getElementById("replay").onclick = function () { 
+  document.getElementById("replay").onclick = function () {
     userPosition = 0;
-    };
+  };
+
+  /*document.getElementById("start").onclick = function () {
+    document.getElementById("scrollbox1").style.opacity = 0;
+  };*/
 
   //Kameraausrichtung
-  if (userPosition > 0 && userPosition < 0.41) {
+  if (userPosition > 0 && userPosition < 0.60) {
     camera.lookAt(pathCurve.getPointAt(userPosition + 0.01));
   } else {
     camera.lookAt(0, 8, 0);
   }
-  
+
   //SCROLLBOXEN TEXTBLÖCKE
 
   if (userPosition >= 0 && userPosition < 0.02) {
@@ -533,13 +559,13 @@ function update(renderer, scene, camera) {
     document.getElementById("scrollbox3").style.opacity = 0;
   }
 
-  if (userPosition > 0.53 && userPosition < 0.63) {
+  if (userPosition > 0.53 && userPosition < 0.70) {
     document.getElementById("scrollbox4").style.opacity = 1;
   } else {
     document.getElementById("scrollbox4").style.opacity = 0;
   }
 
-  if (userPosition > 0.70 && userPosition <= 1) {
+  if (userPosition > 0.82 && userPosition <= 1) {
     document.getElementById("scrollbox5").style.opacity = 1;
   } else {
     document.getElementById("scrollbox5").style.opacity = 0;
@@ -556,37 +582,13 @@ function update(renderer, scene, camera) {
     target.x = mouse.x * Math.PI / 20; //target = maximale Gradzahl der Abweichung nach recht o links
     //target.y = mouse.y * Math.PI / 40; 
 
-    camera.applyQuaternion(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), -target.x));
+    camera.applyQuaternion(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), -target.x));
     //camera.applyQuaternion(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), -target.y));
 
     camera.quaternion.normalize();
   } else {
     camera.rotation.y = 0;
   }
-
-  if (userPosition > 0.7) {
-    //target.x = maximale Gradzahl der Abweichung nach rechts o. links in Porzent der Mausbewegung
-    //Mouse.x hat einen Wert zwischen -1 bis 1. Bsp. mouse.x = 0.5 d.h. 50% der maximalen Gradzahl werden geschwenkt.
-    //bei mouse.x = 1 (das ist wenn die Maus ganz links am Rand ist) heißt es 100% der Gradzahl werden geschwenkt.
-    //der letzte Wert bedeutet wie viel Porzent einer Drehung. Dabei ist 1 eine 180 grad Drehung, 0.5 eine 90 Grad drehung. 0.1 eine 18 Grad Drehung.
-
-    target.x = mouse.x * Math.PI / 20; //target = maximale Gradzahl der Abweichung nach recht o links
-    //target.y = mouse.y * Math.PI / 40; 
-
-    //camera.applyQuaternion(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0.5,0,0.5), 1));
-    //camera.applyQuaternion(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), -target.y));
-
-    camera.quaternion.normalize();
-  }
-
-  if (userPosition >= 0 && userPosition < 0.4 && fogDensity > 0.05) {
-     scene.fog = new THREE.FogExp2(setcolor, fogDensity);
-    // console.log("WIRST DU WENIGER??? " + fogDensity);
-  } else if (userPosition >= 0.4 && userPosition < 0.9 && fogDensity > 0.06) { 
-    scene.fog = new THREE.FogExp2(setcolor, fogDensity);
-    fogDensity -= 0.001;
-    // console.log("was soll das " + fogDensity);
-  } 
 
   requestAnimationFrame(function () {
     update(renderer, scene, camera);

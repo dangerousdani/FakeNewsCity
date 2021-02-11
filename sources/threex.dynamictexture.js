@@ -144,9 +144,9 @@ THREEx.DynamicTexture.prototype.drawTextCooked = function(options){
 		}
 
     // LINE BREAKS 
-    
+
     var words = maxText.split(' ');
-    console.log("wordArrays: " + words.length);
+    // console.log("wordArrays: " + words.length);
 
     if(words.length > 1){
       var lastWord = words[words.length-1]; 
