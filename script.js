@@ -37,9 +37,8 @@ window.addEventListener('mousemove', onMouseMove, false);
 // CALCULATES MOUSE POSITION 
 
 function onMouseMove(event) {
-  mouse.x = (event.clientX - windowHalf.x);
-  mouse.y = (event.clientY - windowHalf.y);
-  // console.log(mouse.x);
+  mouse.x = (event.clientX - windowHalf.x)/windowHalf.x;
+  mouse.y = (event.clientY - windowHalf.y)/windowHalf.y;
 }
 
 let scrollbox1 = document.getElementById("scrollbox1");
@@ -100,7 +99,6 @@ const pathCurve = new THREE.CatmullRomCurve3([
   new THREE.Vector3(0, 40, 0),
   //new THREE.Vector3(1, 40, 3),
 ]);
-
 
 const pathPoints = pathCurve.getPoints(50);
 const pathGeometry = new THREE.BufferGeometry().setFromPoints(pathPoints);
@@ -589,43 +587,20 @@ function update(renderer, scene, camera) {
 
   // 👀 CAMERA MOVING ON MOUSE MOVEMENT 
 
-  // console.log(mouse.x);
+  if (userPosition > 0 && userPosition < 0.4) {
 
+    target.x = mouse.x * Math.PI/40; //target = maximale Gradzahl der Abweichung nach recht o links
+    //target.y = mouse.x * Math.PI/3;
 
-  if (mouse.x > 0) {
+    camera.applyQuaternion(new THREE.Quaternion(0,1,0,target.x)) ;
+    camera.applyQuaternion(new THREE.Quaternion(0,1,0,1)) ;
+    camera.applyQuaternion(new THREE.Quaternion(0,1,0,-1)) ;
 
-    target.x = (1 - mouse.x) * 0.002;
-    target.y = (1 - mouse.y) * 0.002;
-
-    //camera.rotation.x += 0.1 * (target.y - camera.rotation.x); // nach oben
-    camera.rotation.y += 0.3 * (target.x - camera.rotation.y); // nach rechts 
+    camera.applyQuaternion(new THREE.Quaternion(0,1,0, target.x)) ;
+    camera.quaternion.normalize();
+  } else {
+    camera.rotation.y = 0;
   }
-  else {
-    target.x = (1 - mouse.x) * 0.002;
-    target.y = (1 - mouse.y) * 0.002;
-
-    //camera.rotation.x = 0.5 * (target.y - camera.rotation.x); // nach oben
-    camera.rotation.y = 0.3 * (target.x - camera.rotation.y); // nach links 
-  }
-  /*
-    if (userPosition > 0 && userPosition < 0.4) {
-  
-      //let x = (vector.x + 1) * width / 2;
-      //let y = - (vector.y - 1) * height / 2;
-      //const vector = new THREE.Vector2(x, y).project(camera);
-      //vector.project( camera );
-      //vector.x = ( vector.x + 1) * width / 2;
-      //vector.y = - ( vector.y - 1) * height / 2;
-      //vector.z = 0; 
-  
-      target.x = (mouse.x) * 0.002;
-      //target.y = (1 - mouse.y) * 0.02;
-      //camera.rotation.x += 0.5 * (target.y - camera.rotation.x); // nach oben
-      camera.rotation.y += -(target.x - mouse.x) * 0.0002; // nach rechts 
-    } else {
-      camera.rotation.y = 0;
-    }*/
-  // console.log(camera.rotation.y)
 
   requestAnimationFrame(function () {
     update(renderer, scene, camera);
