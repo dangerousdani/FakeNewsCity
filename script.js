@@ -252,9 +252,9 @@ class House {
     this.width = 1;
     this.depth = 1;
 
-    this.tweetString = this.lineBreak(22, _tweetString);
+    // this.tweetString = this.lineBreak(22, _tweetString);
     // console.log(this.lineBreak(28, _tweetString));
-    // this.tweetString = _tweetString;
+    this.tweetString = _tweetString;
 
     this.dynamicTexture = new THREEx.DynamicTexture(400, 400 * this.height)
 
@@ -382,7 +382,7 @@ class House {
     }
 
   }
-
+/*
   // ADDING LINE BREAKS 
   
     lineBreak(linebreakat, text) {
@@ -439,7 +439,7 @@ class House {
       }
       return stringwithbreaks.join('');
     }
-  
+  */
 }
 
 // 🎯 CLASS FOR PLATFORM / Bürgersteig -------------------------- 
@@ -606,11 +606,11 @@ function update(renderer, scene, camera) {
 
   if (userPosition >= 0 && userPosition < 0.4 && fogDensity > 0.05) {
      scene.fog = new THREE.FogExp2(setcolor, fogDensity);
-    console.log("WIRST DU WENIGER??? " + fogDensity);
+    // console.log("WIRST DU WENIGER??? " + fogDensity);
   } else if (userPosition >= 0.4 && userPosition < 0.9 && fogDensity > 0.06) { 
     scene.fog = new THREE.FogExp2(setcolor, fogDensity);
     fogDensity -= 0.001;
-    console.log("was soll das " + fogDensity);
+    // console.log("was soll das " + fogDensity);
   } 
 
   requestAnimationFrame(function () {
