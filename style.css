@@ -43,10 +43,11 @@ p {
 }
 
 .infotext {
-  color: white;
+  color: #8093a8;
   font-weight: 200;
   line-height: 18px;
-  font-size: 14px;
+  font-size: 19px;
+  text-shadow: 2px 2px 10px #5b738f;
 }
 
 .button-white {
@@ -78,14 +79,14 @@ button:hover {
   color: white;
   }
 
-#scrollbox1 {
-  opacity: 1;
-}
-
-#scrollbox2, #scrollbox3, #scrollbox4, #scrollbox5 {
-  opacity: 0;
+#scrollbox1, #scrollbox2, #scrollbox3, #scrollbox4, #scrollbox5, #scrollbox6 {
   transition: 0.5s ease-in-out;
   }
+
+#scrollbox2, #scrollbox3, #scrollbox4, #scrollbox5, #scrollbox6 {
+  display: none; 
+  opacity: 0,
+}
 
 .scrollbox-wrapper {
   position: fixed;
@@ -98,7 +99,7 @@ button:hover {
   align-items: center;
   }
 
-.backgroundbox {
+.backgroundbox{
   height: 100vh; 
   width: 100vw; 
   background-color: rgba(150, 164, 182, 1); 
@@ -119,7 +120,8 @@ button:hover {
 .infotextbox {
   position: absolute;
   bottom: 10%;
-  border: 1px solid white;
+  // border: 1px solid #4e6177; 
+  // box-shadow: 0px 0px 3px #52647a;
   //border-radius: 18px; 
   width: 20%;
   padding: 15px 20px;

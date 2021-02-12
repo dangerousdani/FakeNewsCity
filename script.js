@@ -92,10 +92,13 @@ const pathCurve = new THREE.CatmullRomCurve3([
   //new THREE.Vector3(4, -10, 5),   // Fahrt nach unten
 
   // Wechsel in die Zwischenstufe
-  new THREE.Vector3(1, 4, 15),
+  new THREE.Vector3(0, 4, 16),
   // Wechsel in die Vogelperspektive
-  new THREE.Vector3(0, 20, 0),
-  new THREE.Vector3(0, 30, 0),
+  new THREE.Vector3(0, 18, 5),
+  new THREE.Vector3(0, 19, 2),
+  new THREE.Vector3(0, 20, 1),
+  new THREE.Vector3(0, 30, 0.5),
+  new THREE.Vector3(0, 40, 0),
   //new THREE.Vector3(1, 40, 3),
 ]);
 
@@ -167,19 +170,19 @@ scene.add(dirLight);
 scene.add(dirLight.target);
 
 var pointLight = new THREE.PointLight(0xCE9178, 2.0, 600);
-pointLight.position.set = (4.5,3,3)
+pointLight.position.set = (4.5, 3, 3)
 scene.add(pointLight);
 
 var pointLight2 = new THREE.PointLight(0xCE9178, 2.0, 600);
-pointLight2.position.set = (4.5,3,-3)
+pointLight2.position.set = (4.5, 3, -3)
 scene.add(pointLight2);
 
 var pointLight3 = new THREE.PointLight(0xCE9178, 2.0, 600);
-pointLight3.position.set = (-4.5,3,-3)
+pointLight3.position.set = (-4.5, 3, -3)
 scene.add(pointLight3);
 
 var pointLight4 = new THREE.PointLight(0xCE9178, 2.0, 600);
-pointLight4.position.set = (-4.5,3,3)
+pointLight4.position.set = (-4.5, 3, 3)
 scene.add(pointLight4);
 
 const ambiColor = 0x404040;
@@ -513,7 +516,7 @@ function update(renderer, scene, camera) {
     fogDensity -= 0.001;
     // console.log("was soll das " + fogDensity);
   }
-  
+
   userSpeed = userSpeed * 0.8;
   userPosition = userPosition + userSpeed;
 
@@ -528,47 +531,69 @@ function update(renderer, scene, camera) {
     userPosition = 0;
   };
 
-  /*document.getElementById("start").onclick = function () {
+  document.getElementById("start").onclick = function () {
     document.getElementById("scrollbox1").style.opacity = 0;
-  };*/
+    setTimeout(function () {
+      document.getElementById("scrollbox2").style.display = "flex";
+    }, 200);
+  };
 
   //Kameraausrichtung
-  if (userPosition > 0 && userPosition < 0.60) {
+  if (userPosition > 0 && userPosition < 0.45) {
     camera.lookAt(pathCurve.getPointAt(userPosition + 0.01));
   } else {
-    camera.lookAt(0, 8, 0);
+    camera.lookAt(0, 6, 0);
   }
 
   //SCROLLBOXEN TEXTBLÖCKE
 
-  if (userPosition >= 0 && userPosition < 0.02) {
-    document.getElementById("scrollbox1").style.opacity = 1;
-  } else {
-    document.getElementById("scrollbox1").style.opacity = 0;
+  let transitionTime = 5000; // 1000ms = 1s 
+
+  if (userPosition > 0 && userPosition < 0.04) {
+    document.getElementById("scrollbox2").style.opacity = 1;
+    document.getElementById("scrollbox2").style.display = "flex";
+  } else if (userPosition > 0.04 && userPosition < 0.06) {
+    document.getElementById("scrollbox2").style.opacity = 0;
+    setTimeout(function () {
+      document.getElementById("scrollbox2").style.display = "none";
+    }, transitionTime);
   }
 
   if (userPosition > 0.15 && userPosition < 0.19) {
-    document.getElementById("scrollbox2").style.opacity = 1;
-  } else {
-    document.getElementById("scrollbox2").style.opacity = 0;
-  }
-
-  if (userPosition > 0.35 && userPosition < 0.5) {
     document.getElementById("scrollbox3").style.opacity = 1;
-  } else {
+    document.getElementById("scrollbox3").style.display = "flex";
+  } else if (userPosition > 0.19 && userPosition < 0.21) {
     document.getElementById("scrollbox3").style.opacity = 0;
+    setTimeout(function () {
+      document.getElementById("scrollbox3").style.display = "none";
+    }, transitionTime);
   }
 
-  if (userPosition > 0.53 && userPosition < 0.70) {
+  if (userPosition > 0.35 && userPosition < 0.4) {
     document.getElementById("scrollbox4").style.opacity = 1;
-  } else {
+    document.getElementById("scrollbox4").style.display = "flex";
+  } else if (userPosition > 0.4 && userPosition < 0.42) {
     document.getElementById("scrollbox4").style.opacity = 0;
+    setTimeout(function () {
+      document.getElementById("scrollbox4").style.display = "none";
+    }, transitionTime);
   }
 
-  if (userPosition > 0.82 && userPosition <= 1) {
+  if (userPosition > 0.53 && userPosition < 0.7) {
     document.getElementById("scrollbox5").style.opacity = 1;
-  } else {
+    document.getElementById("scrollbox5").style.display = "flex";
+  } else if (userPosition > 0.7 && userPosition < 0.72) {
     document.getElementById("scrollbox5").style.opacity = 0;
+    setTimeout(function () {
+      document.getElementById("scrollbox5").style.display = "none";
+    }, transitionTime);
+  }
+
+  if (userPosition > 0.8 && userPosition <= 1) {
+    document.getElementById("scrollbox6").style.opacity = 1;
+    document.getElementById("scrollbox6").style.display = "flex";
+  } else {
+    document.getElementById("scrollbox6").style.display = "none";
   }
 
   // 👀 CAMERA MOVING ON MOUSE MOVEMENT 
