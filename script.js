@@ -1,12 +1,11 @@
 // 📀 LOAD THREE JS -------------------------- 
 
 import * as THREE from './sources/three.module.js';
+import { VRButton } from './sources/VRButton.js';
 
 //FRAMERATE STATS 
 
-javascript: (function () { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); }; script.src = '//mrdoob.github.io/stats.js/build/stats.min.js'; document.head.appendChild(script); })()
-
-import { FirstPersonControls } from './sources/firstPersonControls.js';
+/*javascript: (function () { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); }; script.src = '//mrdoob.github.io/stats.js/build/stats.min.js'; document.head.appendChild(script); })()*/
 
 // 🌐 GLOBAL VARIABLES -------------------------- 
 
@@ -27,7 +26,7 @@ const target = new THREE.Vector2();
 const windowHalf = new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2);
 
 window.addEventListener('wheel', function (wheelEvent) {
-  wheelEvent.preventDefault();
+  // wheelEvent.preventDefault();
   wheelEvent.stopPropagation();
   userSpeed += wheelEvent.deltaY * 0.00002;
 })
@@ -87,12 +86,14 @@ const pathCurve = new THREE.CatmullRomCurve3([
   new THREE.Vector3(0, 0.5, 3.8),
   new THREE.Vector3(0, 0.5, 3.8),
   // Endpunkt: Sackgasse
-  new THREE.Vector3(0.5, 0.5, 1),
+  new THREE.Vector3(0, 0.5, 1),
+  new THREE.Vector3(0, 1, 0.8),
+  new THREE.Vector3(0, 2, 0.6),
 
   //new THREE.Vector3(4, -10, 5),   // Fahrt nach unten
 
   // Wechsel in die Zwischenstufe
-  new THREE.Vector3(0, 4, 16),
+  new THREE.Vector3(0, 4, 15),
   // Wechsel in die Vogelperspektive
   new THREE.Vector3(0, 18, 5),
   new THREE.Vector3(0, 19, 2),
@@ -203,19 +204,6 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setClearColor('rgb(30,30,30)');
 document.body.appendChild(renderer.domElement);
 
-function animate() {
-
-  for (let i = 0; i < houses.length; i++) {
-    houses[i].animate();
-  }
-
-  requestAnimationFrame(animate);
-  render();
-}
-
-function render() {
-  renderer.render(scene, camera);
-}
 
 // 📊 LOAD JSON DATA ----------------------------------------
 // Do not forget to load the D3 Framework in your HTML file!
@@ -225,7 +213,7 @@ d3.json("sources/newnewsapi.json").then(function (data) {
   // 🚀 RUN MAIN FUNCTIONS -------------------------- 
 
   init(data);
-  animate();
+  update(renderer, scene, camera);
 });
 
 // 🎯 MAIN FUNCTION -------------------------- 
@@ -245,10 +233,6 @@ function init(data) {
   // console.log('🏠 roof: ' + roof);
 
   generate_city(tweets, roof);
-
-  controls = new FirstPersonControls(camera, renderer.domElement);
-  controls.movementSpeed = 1000;
-  controls.lookSpeed = 0.1;
 
   // helper(); // Koordinatensystem  
 }
@@ -373,26 +357,38 @@ class House {
 
   animate() {
 
-    let growingSpeed = 0.008;
+    let growingSpeed = 0.005;
     let roofColor = this.roofColor;
 
     // die weißen Häuser sollen langsamer als die schwarzen Häuser wachsen
 
     if (roofColor == "rgb(255,255,255)") {
-      growingSpeed = 0.002;
+      growingSpeed = 0.0075;
     } else {
-      growingSpeed = 0.008;
+      growingSpeed = 0.01;
     }
 
-    // die Häuser sollen nur beim Perspektivenwechseln wachsen
+    let maxScale = growingSpeed * 320 + 1; //Achtung: growingSpeed und MaxScale sind abhängig von einander. Wenn man oben den growingSpeed vergößert muss hier der Scale (diese * 200) verkleinert werden. Zb. wird der Speed verdoppelt muss der Scale hier halbiert werden um dieselbe maxScale zu erreichen wie zuvor. 1 ist eine notwendige Konstante.
+    console.log("MaxScale: " + maxScale);
 
-    if (userPosition > 0.4 && userPosition < 0.7) {
+    // die Häuser sollen nur beim Perspektivenwechseln wachsen bis sie die maxScale erreicht haben
+
+    if (userPosition > 0.40 && userPosition < 0.7 && this.mesh.scale.y < maxScale) {
       this.mesh.scale.y += Math.random() * growingSpeed;
     } else if (userPosition >= 0 && userPosition < 0.4) {
       this.mesh.scale.y = this.mesh.scale.y;
     } else if (userPosition >= 0.7 && userPosition < 1) {
       this.mesh.scale.y = this.mesh.scale.y;
     }
+
+    /*
+    if (userPosition > 0.40 && userPosition < 0.7) {
+      this.mesh.scale.y += Math.random() * growingSpeed;
+    } else if (userPosition >= 0 && userPosition < 0.4) {
+      this.mesh.scale.y = this.mesh.scale.y;
+    } else if (userPosition >= 0.7 && userPosition < 1) {
+      this.mesh.scale.y = this.mesh.scale.y;
+    }*/
 
   }
 }
@@ -491,7 +487,7 @@ function generate_city(tweets, roof) {
   }
 }
 
-// Rezise Site ----------------------- 
+// RESIZE WINDOW  
 
 window.addEventListener('resize', onWindowResize, false);
 
@@ -508,10 +504,12 @@ function onWindowResize() {
 
 function update(renderer, scene, camera) {
 
+  // REDUCING FOG DURING USER NAVIGATION 
+
   if (userPosition >= 0 && userPosition < 0.4 && fogDensity > 0.05) {
     scene.fog = new THREE.FogExp2(setcolor, fogDensity);
     // console.log("WIRST DU WENIGER??? " + fogDensity);
-  } else if (userPosition >= 0.4 && userPosition < 1 && fogDensity > 0.06) {
+  } else if (userPosition >= 0.4 && userPosition < 1 && fogDensity > 0.03) {
     scene.fog = new THREE.FogExp2(setcolor, fogDensity);
     fogDensity -= 0.001;
     // console.log("was soll das " + fogDensity);
@@ -520,38 +518,41 @@ function update(renderer, scene, camera) {
   userSpeed = userSpeed * 0.8;
   userPosition = userPosition + userSpeed;
 
-  //Kameraposition
+  // CAMERA 
   if (userPosition >= 0 && userPosition < 1) {
     camera.position.copy(pathCurve.getPointAt(userPosition));
-  } else {
+    } else {
     userPosition = 1;
   }
 
+  if (userPosition >= 0 && userPosition < 0.40) {
+    camera.lookAt(pathCurve.getPointAt(userPosition + 0.01));
+  } else {
+    camera.lookAt(0, 7, 0);
+  }
+
+  console.log("position" + userPosition);
+
+  // BUTTONS 
   document.getElementById("replay").onclick = function () {
-    userPosition = 0;
+    window.location.reload();
+    // userPosition = 0; // das Wachsen der Häuser wird nicht resettet 
   };
 
   document.getElementById("start").onclick = function () {
     document.getElementById("scrollbox1").style.opacity = 0;
-    setTimeout(function () {
-      document.getElementById("scrollbox2").style.display = "flex";
-    }, 200);
+    userPosition = 0.01;
   };
 
-  //Kameraausrichtung
-  if (userPosition > 0 && userPosition < 0.45) {
-    camera.lookAt(pathCurve.getPointAt(userPosition + 0.01));
-  } else {
-    camera.lookAt(0, 6, 0);
-  }
-
-  //SCROLLBOXEN TEXTBLÖCKE
+  // SCROLLBOXES FOR EXPLANATIONS 
 
   let transitionTime = 5000; // 1000ms = 1s 
 
   if (userPosition > 0 && userPosition < 0.04) {
     document.getElementById("scrollbox2").style.opacity = 1;
-    document.getElementById("scrollbox2").style.display = "flex";
+    setTimeout(function () {
+      document.getElementById("scrollbox2").style.display = "flex";
+    }, 1000);
   } else if (userPosition > 0.04 && userPosition < 0.06) {
     document.getElementById("scrollbox2").style.opacity = 0;
     setTimeout(function () {
@@ -615,13 +616,19 @@ function update(renderer, scene, camera) {
     camera.rotation.y = 0;
   }
 
+  // Makes houses grow
+  
+  for (let i = 0; i < houses.length; i++) {
+    houses[i].animate();
+    }
+
+  renderer.render(scene, camera);
+
   requestAnimationFrame(function () {
     update(renderer, scene, camera);
   });
-
+  
 }
-
-update(renderer, scene, camera);
 
 // 🔶 ORIENTATION CUBES FOR AXES -------------------------- 
 
@@ -651,3 +658,11 @@ function helper() {
   var arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
   scene.add(arrowHelper);
 }
+
+// VR 
+/*
+document.body.appendChild(VRButton.createButton(renderer));
+renderer.xr.enabled = true;
+renderer.setAnimationLoop(function () {
+  renderer.render(scene, camera);
+});*/
