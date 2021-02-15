@@ -17,6 +17,9 @@ let houses = [];
 let platforms = [];
 let mesh;
 
+let pChangeStart = 0.5;
+let pChangeEnd = 0.8;
+
 let userSpeed = 0;
 let userPosition = 0;
 
@@ -27,6 +30,7 @@ const windowHalf = new THREE.Vector2(window.innerWidth / 2, window.innerHeight /
 
 window.addEventListener('wheel', function (wheelEvent) {
   // wheelEvent.preventDefault();
+
   wheelEvent.stopPropagation();
   userSpeed += wheelEvent.deltaY * 0.00002;
 })
@@ -45,10 +49,7 @@ let scrollbox2 = document.getElementById("scrollbox2");
 let scrollbox3 = document.getElementById("scrollbox3");
 let scrollbox4 = document.getElementById("scrollbox4");
 let scrollbox5 = document.getElementById("scrollbox5");
-
-/*let stats = new Stats();
-stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
-document.body.appendChild( stats.dom ); */
+let scrollbox6 = document.getElementById("scrollbox6");
 
 // 🎥 CAM SETTING -------------------------- 
 
@@ -89,18 +90,14 @@ const pathCurve = new THREE.CatmullRomCurve3([
   new THREE.Vector3(0, 0.5, 1),
   new THREE.Vector3(0, 1, 0.8),
   new THREE.Vector3(0, 2, 0.6),
-
-  //new THREE.Vector3(4, -10, 5),   // Fahrt nach unten
-
   // Wechsel in die Zwischenstufe
   new THREE.Vector3(0, 4, 15),
   // Wechsel in die Vogelperspektive
   new THREE.Vector3(0, 18, 5),
   new THREE.Vector3(0, 19, 2),
   new THREE.Vector3(0, 20, 1),
-  new THREE.Vector3(0, 30, 0.5),
-  new THREE.Vector3(0, 40, 0),
-  //new THREE.Vector3(1, 40, 3),
+  new THREE.Vector3(0, 22, 0.5),
+  new THREE.Vector3(0, 25, 0),
 ]);
 
 const pathPoints = pathCurve.getPoints(50);
@@ -115,10 +112,7 @@ let fogFar = 15;
 var setcolor = 0x96A4B6;
 scene = new THREE.Scene();
 scene.background = new THREE.Color(setcolor);
-// scene.fog = new THREE.Fog(setcolor, fogNear, fogFar);
 let fogDensity = 0.2;
-// scene.fog = new THREE.FogExp2(setcolor, fogDensity);
-//scene.fog = new THREE.Fog(setcolor, 25, 1000); // damit der Nebel verschwindet 
 
 // 👇 FLOOR ✅ -----------------------
 
@@ -169,7 +163,7 @@ dirLight.shadow.mapSize.height = 2048;
 dirLight.position.multiplyScalar(5); // Licht multiplizieren, um Schatten weicher zu machen 
 scene.add(dirLight);
 scene.add(dirLight.target);
-
+/*
 var pointLight = new THREE.PointLight(0xCE9178, 2.0, 600);
 pointLight.position.set = (4.5, 3, 3)
 scene.add(pointLight);
@@ -184,7 +178,13 @@ scene.add(pointLight3);
 
 var pointLight4 = new THREE.PointLight(0xCE9178, 2.0, 600);
 pointLight4.position.set = (-4.5, 3, 3)
-scene.add(pointLight4);
+scene.add(pointLight4); */
+
+const color = 0xFFFFFF;
+const intensity = 1;
+const light = new THREE.PointLight(color, intensity);
+light.position.set(0, 2, 0);
+scene.add(light);
 
 const ambiColor = 0x404040;
 const ambiIntensity = 1;
@@ -205,15 +205,14 @@ renderer.setClearColor('rgb(30,30,30)');
 document.body.appendChild(renderer.domElement);
 
 
-// 📊 LOAD JSON DATA ----------------------------------------
-// Do not forget to load the D3 Framework in your HTML file!
+// 📊 LOAD JSON DATA (D3 Framework is in html!) ----------------------------------------
 
 d3.json("sources/newnewsapi.json").then(function (data) {
 
   // 🚀 RUN MAIN FUNCTIONS -------------------------- 
 
   init(data);
-  update(renderer, scene, camera);
+  animate(renderer, scene, camera);
 });
 
 // 🎯 MAIN FUNCTION -------------------------- 
@@ -256,17 +255,7 @@ class House {
     this.dynamicTexture = new THREEx.DynamicTexture(400, 400 * this.height)
 
     this.dynamicTexture.clear('rgb(29,41,81)')
-    this.dynamicTexture.drawTextCooked({
-      background: "black", // der Hintergrund muss schwarz sein, damit die emissiveMap (als Maske) funktioniert
-      text: this.tweetString,
-      lineHeight: 0.1 / this.height,
-      emissive: 1,
-      //transparent: true, 
-      blending: THREE.AdditiveBlending,
-      fillStyle: "white",//"rgba(62,57,60,0.9)",//'white',
-      font: "24px Helvetica",
-      marginTop: ((this.height - this.fixedBoxSizeY + 1) / this.height) // da fixedBoxSize noch zu hoch ist.
-    })
+
 
     // 🏠 GEOMETRY OF THE HOUSE 
 
@@ -284,9 +273,6 @@ class House {
     if (colorProbability < 0.5) {
       this.roofColor = "rgb(255,255,255)";
     }
-
-    const textureLoader = new THREE.TextureLoader();
-    //const sunshine = textureLoader.load("./sources/drivin_school_8k.hdr");
 
     this.material = [
       new THREE.MeshPhongMaterial({
@@ -353,9 +339,30 @@ class House {
     this.mesh.position.z = this.zPos + this.depth / 2;
   }
 
-  // 🏢 GROWING HOUSES 
+
 
   animate() {
+
+    // Draw Texture with Color Change after Changing perspective
+
+    this.tweetColor = "white";
+
+    if (userPosition > 0.5) {
+      this.tweetColor = "black";
+    }
+
+    this.dynamicTexture.drawTextCooked({
+      background: "black", // der Hintergrund muss schwarz sein, damit die emissiveMap (als Maske) funktioniert
+      text: this.tweetString,
+      lineHeight: 0.1 / this.height,
+      emissive: 1,
+      blending: THREE.AdditiveBlending,
+      fillStyle: this.tweetColor,
+      font: "24px Helvetica",
+      marginTop: ((this.height - this.fixedBoxSizeY + 1) / this.height) // da fixedBoxSize noch zu hoch ist.
+    })
+
+    // 🏢 GROWING HOUSES 
 
     let growingSpeed = 0.005;
     let roofColor = this.roofColor;
@@ -363,17 +370,16 @@ class House {
     // die weißen Häuser sollen langsamer als die schwarzen Häuser wachsen
 
     if (roofColor == "rgb(255,255,255)") {
-      growingSpeed = 0.0075;
+      growingSpeed = 0.005;
     } else {
-      growingSpeed = 0.01;
+      growingSpeed = 0.0075;
     }
 
-    let maxScale = growingSpeed * 320 + 1; //Achtung: growingSpeed und MaxScale sind abhängig von einander. Wenn man oben den growingSpeed vergößert muss hier der Scale (diese * 200) verkleinert werden. Zb. wird der Speed verdoppelt muss der Scale hier halbiert werden um dieselbe maxScale zu erreichen wie zuvor. 1 ist eine notwendige Konstante.
-    console.log("MaxScale: " + maxScale);
+    let maxScale = growingSpeed * 320 + 1;
+    //Achtung: growingSpeed und MaxScale sind abhängig von einander. Wenn man oben den growingSpeed vergößert muss hier der Scale (diese * 200) verkleinert werden. Zb. wird der Speed verdoppelt muss der Scale hier halbiert werden um dieselbe maxScale zu erreichen wie zuvor. 1 ist eine notwendige Konstante.
 
-    // die Häuser sollen nur beim Perspektivenwechseln wachsen bis sie die maxScale erreicht haben
-
-    if (userPosition > 0.40 && userPosition < 0.7 && this.mesh.scale.y < maxScale) {
+    // die Häuser sollen nur beim Perspektivenwechseln wachsen und bis sie maxScale erreicht haben
+    if (userPosition > pChangeStart && userPosition < pChangeEnd && this.mesh.scale.y < maxScale) {
       this.mesh.scale.y += Math.random() * growingSpeed;
     } else if (userPosition >= 0 && userPosition < 0.4) {
       this.mesh.scale.y = this.mesh.scale.y;
@@ -381,15 +387,10 @@ class House {
       this.mesh.scale.y = this.mesh.scale.y;
     }
 
-    /*
-    if (userPosition > 0.40 && userPosition < 0.7) {
-      this.mesh.scale.y += Math.random() * growingSpeed;
-    } else if (userPosition >= 0 && userPosition < 0.4) {
-      this.mesh.scale.y = this.mesh.scale.y;
-    } else if (userPosition >= 0.7 && userPosition < 1) {
-      this.mesh.scale.y = this.mesh.scale.y;
-    }*/
-
+    if (this.mesh.scale.y >= 0) {
+      console.log(this.mesh.scale.y);
+      this.tweetColor = "black";
+    }
   }
 }
 
@@ -436,13 +437,10 @@ function generate_district(_offsetX, _offsetZ, tweets, tweetID, roof) {
   let fixedBoxSizeY = 2;
   let districtSize = 6;
 
-  // console.log("generate_district");
-
   for (var i = 0; i < districtSize; i++) {
 
     let tweetText = tweets[tweetID + i];
     let roofText = roof[tweetID + i];
-    // console.log(roofText);
 
     let boxHeight = Math.random() * 2.5 + fixedBoxSizeY;
     let boxRowBreak = boxMaxRowItems * (boxSizeX + boxDistance);
@@ -500,55 +498,56 @@ function onWindowResize() {
 
 }
 
-// 🎥 CAMERA ANIMATION + TEXT BOXES----------------------- 
+// 🎥 CAMERA ANIMATION + TEXT BOXES ----------------------- 
 
-function update(renderer, scene, camera) {
-
-  // REDUCING FOG DURING USER NAVIGATION 
-
-  if (userPosition >= 0 && userPosition < 0.4 && fogDensity > 0.05) {
-    scene.fog = new THREE.FogExp2(setcolor, fogDensity);
-    // console.log("WIRST DU WENIGER??? " + fogDensity);
-  } else if (userPosition >= 0.4 && userPosition < 1 && fogDensity > 0.03) {
-    scene.fog = new THREE.FogExp2(setcolor, fogDensity);
-    fogDensity -= 0.001;
-    // console.log("was soll das " + fogDensity);
-  }
+function animate(renderer, scene, camera) {
 
   userSpeed = userSpeed * 0.8;
   userPosition = userPosition + userSpeed;
 
+  // REDUCING FOG DURING USER NAVIGATION 
+  let fogDensity = 0.2 - userPosition * 0.2;
+  scene.fog = new THREE.FogExp2(setcolor, fogDensity);
+
   // CAMERA 
   if (userPosition >= 0 && userPosition < 1) {
     camera.position.copy(pathCurve.getPointAt(userPosition));
-    } else {
+  } else if (userPosition < 0) {
+    userPosition = 0;
+  } else if (userPosition > 1) {
     userPosition = 1;
   }
 
-  if (userPosition >= 0 && userPosition < 0.40) {
+  if (userPosition >= 0 && userPosition < pChangeStart) {
     camera.lookAt(pathCurve.getPointAt(userPosition + 0.01));
   } else {
     camera.lookAt(0, 7, 0);
   }
 
-  console.log("position" + userPosition);
-
   // BUTTONS 
   document.getElementById("replay").onclick = function () {
     window.location.reload();
-    // userPosition = 0; // das Wachsen der Häuser wird nicht resettet 
   };
 
   document.getElementById("start").onclick = function () {
-    document.getElementById("scrollbox1").style.opacity = 0;
-    userPosition = 0.01;
+    userPosition = 0.03;
   };
 
   // SCROLLBOXES FOR EXPLANATIONS 
 
   let transitionTime = 5000; // 1000ms = 1s 
 
-  if (userPosition > 0 && userPosition < 0.04) {
+  if (userPosition >= 0 && userPosition < 0.02) {
+    document.getElementById("scrollbox1").style.opacity = 1;
+    document.getElementById("scrollbox1").style.display = "flex";
+  } else {
+    document.getElementById("scrollbox1").style.opacity = 0;
+    setTimeout(function () {
+      document.getElementById("scrollbox1").style.display = "none";
+    }, transitionTime);
+  }
+
+  if (userPosition > 0.02 && userPosition < 0.04) {
     document.getElementById("scrollbox2").style.opacity = 1;
     setTimeout(function () {
       document.getElementById("scrollbox2").style.display = "flex";
@@ -558,6 +557,9 @@ function update(renderer, scene, camera) {
     setTimeout(function () {
       document.getElementById("scrollbox2").style.display = "none";
     }, transitionTime);
+  } else if (userPosition < 0.02) {
+    document.getElementById("scrollbox2").style.opacity = 0;
+    document.getElementById("scrollbox2").style.display = "none";
   }
 
   if (userPosition > 0.15 && userPosition < 0.19) {
@@ -568,6 +570,9 @@ function update(renderer, scene, camera) {
     setTimeout(function () {
       document.getElementById("scrollbox3").style.display = "none";
     }, transitionTime);
+  } else if (userPosition < 0.15) {
+    document.getElementById("scrollbox3").style.opacity = 0;
+    document.getElementById("scrollbox3").style.display = "none";
   }
 
   if (userPosition > 0.35 && userPosition < 0.4) {
@@ -578,28 +583,40 @@ function update(renderer, scene, camera) {
     setTimeout(function () {
       document.getElementById("scrollbox4").style.display = "none";
     }, transitionTime);
+  } else if (userPosition < 0.35) {
+    document.getElementById("scrollbox4").style.opacity = 0;
+    document.getElementById("scrollbox4").style.display = "none";
   }
 
-  if (userPosition > 0.53 && userPosition < 0.7) {
-    document.getElementById("scrollbox5").style.opacity = 1;
+  //Scrollbox 5
+  //pChangeStart = 0.5
+  //pChangeStart = 0.8 eigentlich wollte ich für das an und ein schalten der opacity
+  //noch eine Rechnung machen mit pChangeStart - 0.3 oder so xDDDD aber das wird too much oder?
+
+  if (userPosition > pChangeStart && userPosition < pChangeEnd) {
     document.getElementById("scrollbox5").style.display = "flex";
-  } else if (userPosition > 0.7 && userPosition < 0.72) {
-    document.getElementById("scrollbox5").style.opacity = 0;
-    setTimeout(function () {
-      document.getElementById("scrollbox5").style.display = "none";
-    }, transitionTime);
+  } else {
+    document.getElementById("scrollbox5").style.display = "none";
   }
 
-  if (userPosition > 0.8 && userPosition <= 1) {
+  if (userPosition > 0.53 && userPosition < 0.78) {
+    document.getElementById("scrollbox5").style.opacity = 1;
+  } else {
+    document.getElementById("scrollbox5").style.opacity = 0;
+  }
+
+  //Scrollbox 6
+
+  if (userPosition > 0.95 && userPosition <= 1) {
     document.getElementById("scrollbox6").style.opacity = 1;
     document.getElementById("scrollbox6").style.display = "flex";
   } else {
     document.getElementById("scrollbox6").style.display = "none";
   }
 
-  // 👀 CAMERA MOVING ON MOUSE MOVEMENT 
+  // 👀 CAMERA ROTATION ON MOUSE MOVEMENT 
 
-  if (userPosition > 0 && userPosition < 0.4) {
+  if (userPosition > 0 && userPosition < pChangeStart) {
     //target.x = maximale Gradzahl der Abweichung nach rechts o. links in Porzent der Mausbewegung
     //Mouse.x hat einen Wert zwischen -1 bis 1. Bsp. mouse.x = 0.5 d.h. 50% der maximalen Gradzahl werden geschwenkt.
     //bei mouse.x = 1 (das ist wenn die Maus ganz links am Rand ist) heißt es 100% der Gradzahl werden geschwenkt.
@@ -617,17 +634,17 @@ function update(renderer, scene, camera) {
   }
 
   // Makes houses grow
-  
+
   for (let i = 0; i < houses.length; i++) {
     houses[i].animate();
-    }
+  }
 
   renderer.render(scene, camera);
 
   requestAnimationFrame(function () {
-    update(renderer, scene, camera);
+    animate(renderer, scene, camera);
   });
-  
+
 }
 
 // 🔶 ORIENTATION CUBES FOR AXES -------------------------- 
