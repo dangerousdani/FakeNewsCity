@@ -618,13 +618,13 @@ function animate(renderer, scene, camera) {
 
   // SCROLLBOX 5 - Changing perspectives.
 
-  if (userPosition > 0.46 && userPosition <= 0.56) {
+  if (userPosition > 0.46 && userPosition < 0.56) {
     document.getElementById("scrollbox5").style.display = "flex";
   } else {
     document.getElementById("scrollbox5").style.display = "none";
   }
 
-  if (userPosition > 0.47 && userPosition <= 0.55) {
+  if (userPosition > 0.47 && userPosition < 0.54) {
     document.getElementById("scrollbox5").style.opacity = 1;
   } else {
     document.getElementById("scrollbox5").style.opacity = 0;
@@ -632,13 +632,13 @@ function animate(renderer, scene, camera) {
 
   // SCROLLBOX 6 - We are almost there.
 
-  if (userPosition > 0.68 && userPosition <= 0.78) {
+  if (userPosition > 0.68 && userPosition < 0.78) {
     document.getElementById("scrollbox6").style.display = "flex";
   } else {
     document.getElementById("scrollbox6").style.display = "none";
   }
 
-  if (userPosition > 0.69 && userPosition <= 0.77) {
+  if (userPosition > 0.69 && userPosition < 0.76) {
     document.getElementById("scrollbox6").style.opacity = 1;
   } else {
     document.getElementById("scrollbox6").style.opacity = 0;
@@ -646,13 +646,13 @@ function animate(renderer, scene, camera) {
 
   // SCROLLBOX 7 - The whole picture. 
 
-  if (userPosition > 0.90 && userPosition <= 0.99) {
+  if (userPosition > 0.90 && userPosition < 0.99) {
     document.getElementById("scrollbox7").style.display = "flex";
   } else {
     document.getElementById("scrollbox7").style.display = "none";
   }
 
-  if (userPosition > 0.91 && userPosition <= 0.98) {
+  if (userPosition > 0.91 && userPosition < 0.97) {
     document.getElementById("scrollbox7").style.opacity = 1;
   } else {
     document.getElementById("scrollbox7").style.opacity = 0;
