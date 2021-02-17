@@ -27,6 +27,8 @@
 	<!-- 📀 Load your JS file here 👇👇👇👇👇 -->
 	<!--<script src="./sources/firstPersonControls.js">-->
 	<script type="module" src="script.js"></script>
+  
+
 
 	<div class="scrollbox-wrapper" id="scrollbox1">
 		<div class="backgroundbox"></div>
@@ -35,70 +37,75 @@
 			<p class="text"> How we perceive our surrounding is shaped by the many information we consume and share everyday. This
 				exchange of information happens mostly on the Internet – endlessly and quick. But often there is only little time to
 				orientate ourselves or to look around in peace. </br></br>
-				Take a tour through our city shaped by the Internet. </br>
+				Take a tour through our city shaped by news. </br>
 			</p>
 			<button id="start" type="button" onClick="start();" class="button-white">Click to start</button>
-				</div>
-			</div>
-
-      <div class="scrollbox-wrapper" id="scrollbox2">
-				<div class="infotextbox">
-					<p class="infotext">Scroll to go forward.<br>Move mouse to look around.</p>
-				</div>
-			</div>
-
-			<div class="scrollbox-wrapper" id="scrollbox3">
-				<div class="infotextbox">
-					<p class="infotext">Something seems off, right? </br> It is hard to know which way to look.</p>
-				</div>
-			</div>
-
-      <div class="scrollbox-wrapper" id="scrollbox4">
-				<div class="infotextbox">
-					<p class="infotext">Start paying heed to what you should believe and what not to! 90% of the news here are fake.</p>
-				</div>
-			</div>
-
-			<div class="scrollbox-wrapper" id="scrollbox5">
-				<div class="textbox">
-          <h1>Change perspectives.</h1>
-					<p class="text">Got lost in an information overflow and don't know where to look at? Changing your point of view can help to see the whole picture.</p>
-				</div>
-			</div>
-
-			<div class="scrollbox-wrapper" id="scrollbox6">
-				<div class="textbox">
-          <h1 class="">We are almost there.</h1>
-					<p class="text">As long as misinformation obscure the facts and are ever-growing, we can't get a clear picture. It is time to take action. Scroll to go further.
-					</p>
-				</div>
-			</div>
-
-			<div class="scrollbox-wrapper" id="scrollbox7">
-				<div class="textbox">
-					<h1>The whole picture.</h1>
-					<!---<p class="text">Taking a new point of view let us see the whole picture. Now that you have all information needed to judge about an infromation you can no longer be fooled yourself. Share this page with friends or family to raise awareness. And be mindful about what you share on the Internet. We are all part of it. </p>
-          <div> --->
-            <button id="popup" type="button" class="button-white left-button">Read more</button>
-            <button id="replay" type="button" onClick="replay();" class="button-white">Replay</button>  
-          </div>
-				</div>
-			</div>
-
-      <div class="popup">
-			  <h1>Hi,</h1>
-			  <p class="text">we are Thao and Dani, communication design students at HTW Berlin.
-
-        During the pandemic and US election we were really impressed how our surroundings can be shaped by the information we consume every day. In one moment the sewers in venedig are clear and in the next they’re not. Is it true or not, we don’t know and also many others don’t know the truth. But our imagination of the world has already been shaped. And when it was fake our picture of the world gets distorted. But it doesn't have to be if we all are a little more aware. Not only of what we read and consume but also what we tweet and share. 
-        <br><br>
-        This website tracks fakenews from twitter and visualizes them to show how our world can look like, when hoax news would be true. We want to show how a new point of view can help. Instead of feeling overwhelmed in the crowd of information, it may be better to take a step back and see the whole in a big context to detect hoax before spreading it.
-        <br><br>
-        Because this is such an important issue and there are experts fighting against disinformation, we want to engage you to have a look at the nice job netzpolitik.org and  corrective are doing. 
-        <br><br>
-        Thank you for your visit. Hope you enjoyed it!
-
-        </p>
 		</div>
+	</div>
+
+  <div class="scrollbox-wrapper" id="scrollbox2">
+		<div class="infotextbox">
+			<p class="infotext">Scroll to follow the path.<br>Move mouse to look right and left.</p>
+		</div>
+	</div>
+
+	<div class="scrollbox-wrapper" id="scrollbox3">
+		<div class="infotextbox">
+			<p class="infotext">Something seems off, right? </br> It is hard to know which way to look.</p>
+		</div>
+	</div>
+
+  <div class="scrollbox-wrapper" id="scrollbox4">
+		<div class="infotextbox">
+			<p class="infotext">Start paying heed to what you should believe and what not to! 90% of the news here are fake.</p>
+		</div>
+	</div>
+
+	<div class="scrollbox-wrapper-top" id="scrollbox5">
+		<div class="textbox">
+      <h1>Change perspective.</h1>
+			<p class="text">Got lost in an information overflow and don't know where to look at? Changing your point of view can help to see the whole picture.</p>
+		</div>
+	</div>
+
+	<div class="scrollbox-wrapper-top" id="scrollbox6">
+		<div class="textbox">
+      <h1 class="">We are almost there.</h1>
+			<p class="text">As long as misinformation obscure the facts and are ever-growing, we can't get a clear picture. It is time to take action. Scroll to go further.
+			</p>
+		</div>
+	</div>
+
+	<div class="scrollbox-wrapper" id="scrollbox7">
+		<div class="textbox">
+			<h1>The whole picture.</h1>
+			<p class="text">As you can see there are only a few you can truly believe. A new perspective helps you to identify them and see the big picture.<br><br> Share this page with friends and family to raise awareness. </p>
+      <button id="popup-button" type="button" class="button-white button-margin-right">Read more</button>
+      <button id="replay" type="button" onClick="replay();" class="button-white">Replay</button>  
+    </div>
+	</div>
+
+  <div id="popup-wrapper" class="popup-wrapper">
+    <div class="popup-modal">
+      <div class="close-button-wrapper">
+        <button id="close-button" class="close-button"><img src="./sources/close-white-18dp.svg"></button>
+      </div>
+      <h1>Hello,</h1>
+      <p class="text">
+          
+          We are Thao and Dani, communication design students at HTW Berlin.
+
+          During the pandemic and the US election we were really impressed by how our surrounding can be shaped by the information we consume every day. In one moment the sewers in Venice are clear and in the next they’re not. Whether it's true or false is hard to identify. But our imagination of the world has already been shaped. And the more misinformation we obtain the more distorted our picture of the world gets. But it doesn't have to if we are all a bit more aware,not only of what we read and consume but also of what we tweet and share. 
+          <br><br>
+          This website collects fake news from all over the Internet and visualizes them to show how our world could look like when hoax news would be true. We want to show how a new point of view can help. Instead of feeling overwhelmed in the crowd of information take a step back. See everything on the whole to detect the hoaxes before spreading them.
+          <br><br>
+          <!--Because this is such an important issue and there are experts fighting against disinformation, we want to engage you to have a look at the nice job netzpolitik.org and  corrective are doing. 
+          <br><br>-->
+          Thank you for your visit. Hope you enjoyed it!
+
+      </p>
+    </div>
+  </div>
 
 </body>
 

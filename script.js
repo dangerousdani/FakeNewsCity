@@ -5,7 +5,7 @@ import { VRButton } from './sources/VRButton.js';
 
 //FRAMERATE STATS 
 
-javascript: (function () { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); }; script.src = '//mrdoob.github.io/stats.js/build/stats.min.js'; document.head.appendChild(script); })()
+/*javascript: (function () { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); }; script.src = '//mrdoob.github.io/stats.js/build/stats.min.js'; document.head.appendChild(script); })()*/
 
 // 🌐 GLOBAL VARIABLES -------------------------- 
 
@@ -99,8 +99,9 @@ const pathCurve = new THREE.CatmullRomCurve3([
   new THREE.Vector3(0, 18, 5),
   new THREE.Vector3(0, 19, 2),
   new THREE.Vector3(0, 20, 1),
-  new THREE.Vector3(0, 22, 0.5),
-  new THREE.Vector3(0, 23, 0),
+  new THREE.Vector3(0, 22, 0.75),
+  new THREE.Vector3(0, 23, 0.5),
+  new THREE.Vector3(0, 25, 0), 
 ]);
 
 const pathPoints = pathCurve.getPoints(50);
@@ -160,6 +161,7 @@ dirLight.target.position.set(0, 0, 0); // Endposition des Lichts
 dirLight.castShadow = true;
 dirLight.shadow = new THREE.LightShadow(new THREE.PerspectiveCamera(100, 1, 500, 1000));
 dirLight.shadow.bias = 0.0001;
+dirLight.shadow.radius = 1;
 dirLight.shadow.camera.top = 500;
 dirLight.shadow.camera.bottom = - 500;
 dirLight.shadow.camera.left = - 500;
@@ -547,7 +549,7 @@ function animate(renderer, scene, camera) {
 
   // STOP AT PERSPECTIVE CHANGE 
 
-  if (userPosition > 0.46 && userPosition < 0.47 && !hadPaused) {
+  if (userPosition > 0.47 && userPosition < 0.48 && !hadPaused) {
     scrollSpeed = 0;
     setTimeout(function () { scrollSpeed = 0.00002; }, 1000);
   } else 
@@ -563,8 +565,12 @@ function animate(renderer, scene, camera) {
     window.location.reload();
   };
 
-  document.getElementById("popup").onclick = function () {
-    getElementById("popup").style.display = absolute;
+  document.getElementById("popup-button").onclick = function () {
+    document.getElementById("popup-wrapper").style.display = "flex";
+  };
+
+   document.getElementById("close-button").onclick = function () {
+    document.getElementById("popup-wrapper").style.display = "none";
   };
 
   document.getElementById("start").onclick = function () {
