@@ -144,7 +144,7 @@ button:hover {
   background-repeat: no-repeat;
   background-position: center;
   background-size: auto;*/
-  background-color: rgba(22, 30, 40, 1); 
+  background-color: rgba(22, 30, 40, 0.9); 
   position: absolute; 
   top: 0px; 
   left: 0px;

@@ -1,7 +1,6 @@
 // 📀 LOAD THREE JS -------------------------- 
 
 import * as THREE from './sources/three.module.js';
-import { VRButton } from './sources/VRButton.js';
 
 //FRAMERATE STATS 
 
@@ -35,7 +34,6 @@ window.addEventListener('wheel', function (wheelEvent) {
   // wheelEvent.preventDefault();
   wheelEvent.stopPropagation();
   userSpeed += wheelEvent.deltaY * scrollSpeed;
-  console.log(wheelEvent.deltaY);
 });
 
 window.addEventListener('mousemove', onMouseMove, false);
@@ -232,7 +230,7 @@ document.body.appendChild(renderer.domElement);
 
 // 📊 LOAD JSON DATA (D3 Framework is in html!) ----------------------------------------
 
-d3.json("sources/newnewsapi.json").then(function (data) {
+d3.json("sources/newsapi.json").then(function (data) {
 
   // 🚀 RUN MAIN FUNCTIONS -------------------------- 
 
@@ -513,12 +511,9 @@ function generate_city(tweets, roof) {
 window.addEventListener('resize', onWindowResize, false);
 
 function onWindowResize() {
-
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-
   renderer.setSize(window.innerWidth, window.innerHeight);
-
 }
 
 // 🎥 CAMERA ANIMATION + TEXT BOXES ----------------------- 
@@ -541,7 +536,7 @@ function animate(renderer, scene, camera) {
     userPosition = 1;
   }
 
-  if (userPosition >= 0 && userPosition < pChangeStart) {
+  if (userPosition >= 0 && userPosition < 0.49) {
     camera.lookAt(pathCurve.getPointAt(userPosition + 0.01));
   } else {
     camera.lookAt(0, 7, 0);
@@ -652,13 +647,13 @@ function animate(renderer, scene, camera) {
 
   // SCROLLBOX 7 - The whole picture. 
 
-  if (userPosition > 0.90 && userPosition < 0.99) {
+  if (userPosition > 0.89 && userPosition < 0.99) {
     document.getElementById("scrollbox7").style.display = "flex";
   } else {
     document.getElementById("scrollbox7").style.display = "none";
   }
 
-  if (userPosition > 0.91 && userPosition < 0.97) {
+  if (userPosition > 0.90 && userPosition < 0.98) {
     document.getElementById("scrollbox7").style.opacity = 1;
   } else {
     document.getElementById("scrollbox7").style.opacity = 0;
@@ -666,13 +661,13 @@ function animate(renderer, scene, camera) {
 
   // 👀 CAMERA ROTATION ON MOUSE MOVEMENT 
 
-  if (userPosition > 0 && userPosition < pChangeStart) {
+  if (userPosition > 0 && userPosition < 0.49) {
     //target.x = maximale Gradzahl der Abweichung nach rechts o. links in Porzent der Mausbewegung
     //Mouse.x hat einen Wert zwischen -1 bis 1. Bsp. mouse.x = 0.5 d.h. 50% der maximalen Gradzahl werden geschwenkt.
     //bei mouse.x = 1 (das ist wenn die Maus ganz links am Rand ist) heißt es 100% der Gradzahl werden geschwenkt.
     //der letzte Wert bedeutet wie viel Porzent einer Drehung. Dabei ist 1 eine 180 grad Drehung, 0.5 eine 90 Grad drehung. 0.1 eine 18 Grad Drehung.
 
-    target.x = mouse.x * Math.PI / 20; //target = maximale Gradzahl der Abweichung nach recht o links
+    target.x = mouse.x * Math.PI / 15; //target = maximale Gradzahl der Abweichung nach rechts o links
     //target.y = mouse.y * Math.PI / 40; 
 
     camera.applyQuaternion(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), -target.x));
@@ -724,11 +719,3 @@ function helper() {
   var arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
   scene.add(arrowHelper);
 }
-
-// VR 
-/*
-document.body.appendChild(VRButton.createButton(renderer));
-renderer.xr.enabled = true;
-renderer.setAnimationLoop(function () {
-  renderer.render(scene, camera);
-});*/
